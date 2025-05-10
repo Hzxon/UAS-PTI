@@ -10,6 +10,7 @@ function App() {
           <code>Hello World!</code> Bulutangkis Cabang UMN
           Apalah gitu t
           entah apa
+          yang merasuki mu
         </p>
         <a
           className="App-link"
