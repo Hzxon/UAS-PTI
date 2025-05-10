@@ -12,6 +12,7 @@ function App() {
           entah apa
           coba localhost
           basjfdfsl
+          awawdfwdaw
         </p>
         <a
           className="App-link"
