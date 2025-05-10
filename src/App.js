@@ -11,8 +11,7 @@ function App() {
           Apalah gitu t
           entah apa
           coba localhost
-          coba localhost 2
-          wWLLLELED
+          basjfdfsl
         </p>
         <a
           className="App-link"
