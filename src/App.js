@@ -10,6 +10,7 @@ function App() {
           <code>Hello World!</code> Bulutangkis Cabang UMN
           Apalah gitu t
           entah apa
+          coba run local
         </p>
         <a
           className="App-link"
