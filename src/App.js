@@ -9,6 +9,7 @@ function App() {
         <p>
           <code>Hello World!</code> Bulutangkis Cabang UMN
         </p>
+        <h1>Tes</h1>
         <a
           className="App-link"
           href="https://reactjs.org"
