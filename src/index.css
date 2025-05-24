@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face { /* */
+    font-family: 'Judul Tampilan Awal';
+    src: url('./assets/fonts/SuperPixel-m2L8j.ttf'); /* Adjust path */
+}
+@font-face { /* */
+    font-family: 'Font Utama';
+    src: url('./assets/fonts/dogicapixel.ttf'); /* Adjust path */
+}
+
+body {
+    font-family: 'Font Utama', sans-serif; /* Default font */
+}
+
+/* For animations like blink */
+/* @layer utilities {
+  .animate-blink {
+    animation: blink 3s infinite;
+  }
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+} */
