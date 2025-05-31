@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -5,6 +6,38 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+=======
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  .text-shadow {
+    text-shadow: 0px -2px black, 2px 0px black, 0px 2px black, -2px 0px black;
+  }
+  .hover-text-shadow:hover {
+    text-shadow: 0px 0px 2px black;
+  }
+  .box-shadow{
+    box-shadow: 1px 1px 3px black;
+  }
+}
+
+@font-face { /* */
+    font-family: 'JudulTampilanAwal';
+    src: url('./assets/fonts/SuperPixel-m2L8j.ttf'); /* Adjust path */
+}
+@font-face { /* */
+    font-family: 'FontUtama';
+    src: url('./assets/fonts/dogicapixel.ttf'); /* Adjust path */
+}
+
+body {
+    font-family: 'FontUtama', sans-serif; /* Default font */
+    margin: 0;
+    padding: 0;
+    background-color: red;
+>>>>>>> Stashed changes
 }
 
 code {
