@@ -93,9 +93,9 @@ const Map = ({ onNavigateStart }) => {
     const mapButtonPositions = {
         rumah: { top: '35%', left: '30%' }, // Approximate, from style.css #karakter-rumah, .rumah
         gunung: { top: '35%', right: '30%' }, // Approximate, from style.css #karakter-gunung, .gunung
-        pantai: { bottom: '25%', left: '28%' }, // Approximate, from style.css #karakter-pantai, .pantai
-        danau: { bottom: '35%', right: '40%' }, // Approximate, from style.css #karakter-danau, .danau
-        billiard: { bottom: '15%', right: '10%' }, // Approximate, from style.css #karakter-beel, .beel
+        pantai: { bottom: '20%', left: '28%' }, // Approximate, from style.css #karakter-pantai, .pantai
+        danau: { bottom: '35%', right: '39%' }, // Approximate, from style.css #karakter-danau, .danau
+        billiard: { bottom: '10%', right: '5%' }, // Approximate, from style.css #karakter-beel, .beel
     };
 
 
@@ -104,9 +104,9 @@ const Map = ({ onNavigateStart }) => {
             {/* Small Map Icon */}
             <img
                 id="map-kecil"
-                src="/objek/Map-Kecil.png" // Path relative to public folder
+                src="/images/objek/map-kecil.png" // Path relative to public folder
                 alt="Buka Peta"
-                className="fixed w-[100px] md:w-[150px] cursor-pointer bottom-5 md:bottom-[30px] right-5 md:right-[30px] z-[500] transition-all duration-1000 hover:w-[120px] md:hover:w-[180px]" //
+                className="fixed w-[100px] md:w-[150px] cursor-pointer bottom-5 md:bottom-[30px] right-5 md:right-[30px] z-[1000] transition-all duration-1000 hover:w-[120px] md:hover:w-[180px]" //
                 onClick={handleOpenMap}
             />
 
@@ -114,11 +114,11 @@ const Map = ({ onNavigateStart }) => {
             {isMapOpen && (
                 <>
                     {/* Blur effect overlay (optional, could be a semi-transparent div) */}
-                    <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 z-[990]"></div> {/* Mimics .blur.muncul opacity */}
+                    <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 z-[1001]"></div> {/* Mimics .blur.muncul opacity */}
 
-                    <div id="buka-map" className="fixed top-0 left-0 w-full h-full flex justify-center items-center z-[999]"> {/* */}
+                    <div id="buka-map" className="fixed top-0 left-0 w-full h-full flex justify-center items-center z-[1002]"> {/* */}
                         <div id="map-besar" className="relative w-full max-w-[700px] md:max-w-[900px]"> {/* */}
-                            <img id="map-image" src="/objek/Map-Besar.png" alt="Peta Besar" className="w-full" /> {/* */}
+                            <img id="map-image" src="/images/objek/map-besar.png" alt="Peta Besar" className="w-full" /> {/* */}
 
                             {/* Tutup Button */}
                             <button
@@ -145,7 +145,7 @@ const Map = ({ onNavigateStart }) => {
                                                 style={{
                                                     ...positionStyle,
                                                     // Adjust position slightly if button and marker overlap too much
-                                                    transform: 'translate(-50%, -110%)' // Position character above the button center
+                                                    transform: 'translate(-50%, -60%)' // Position character above the button center
                                                 }}
                                             />
                                         )}

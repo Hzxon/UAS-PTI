@@ -185,7 +185,7 @@ const GunungScreen = () => {
             <div className={`relative w-screen h-screen overflow-hidden bg-cover bg-bottom bg-fixed font-utama 
                 ${isMalam ? "bg-[url('/gambar/tampilan-gunung-malam.png')]" : "bg-[url('/images/gambar/tampilan-gunung.png')]"}`}> {/* */}
                 
-                <div ref={transitionGelapRef} className="fixed top-0 left-0 w-full h-full bg-black opacity-0 pointer-events-none transition-opacity duration-500 ease-in-out z-[998]"></div> {/* */}
+                <div ref={transitionGelapRef} className="fixed top-0 left-0 w-full h-full bg-black opacity-0 pointer-events-none transition-opacity duration-500 ease-in-out z-[1003]"></div> {/* */}
 
                 <div id="arena-top" className="fixed top-0 left-0 w-full z-[100]">
                     <StatusBar />

@@ -145,7 +145,7 @@ const RumahScreen = () => {
                 {/* Transisi Gelap for specific actions like sleeping */}
                 <div
                     ref={transitionGelapRef}
-                    className="fixed top-0 left-0 w-full h-full bg-black opacity-0 pointer-events-none transition-opacity duration-500 ease-in-out z-[999]" //
+                    className="fixed top-0 left-0 w-full h-full bg-black opacity-0 pointer-events-none transition-opacity duration-500 ease-in-out z-[1003]" //
                 ></div>
 
                 <div id="arena-top" className="fixed top-0 left-0 w-full z-[100]">
