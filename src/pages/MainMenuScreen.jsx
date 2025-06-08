@@ -145,8 +145,8 @@ const MainMenuScreen = () => {
             {/* Audio Elements */}
             <audio ref={bgMusicRef} src="/sounds/backsound1.wav" loop preload="auto"></audio> {/* */}
             <audio ref={clickSoundRef} src="/sounds/click.mp3" preload="auto"></audio> {/* */}
-            <audio ref={inputSuccessSoundRef} src="/sounds/inputberhasil.wav" preload="auto"></audio> {/* Corrected filename from original source */}
-            <audio ref={inputFailSoundRef} src="/sounds/inputgagal.wav" preload="auto"></audio> {/* */}
+            <audio ref={inputSuccessSoundRef} src="/sounds/input-berhasil.wav" preload="auto"></audio> {/* Corrected filename from original source */}
+            <audio ref={inputFailSoundRef} src="/sounds/input-gagal.wav" preload="auto"></audio> {/* */}
 
             {/* Game Title */}
             <h1 className="font-judul text-[#ffcf40] text-center
