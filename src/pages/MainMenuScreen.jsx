@@ -135,7 +135,7 @@ const MainMenuScreen = () => {
     };
 
     return (
-        <div className="relative w-screen h-screen flex flex-col items-center justify-center bg-[url('/images/gambar/TampilanAwal.gif')] bg-cover bg-center bg-fixed font-utama text-white overflow-hidden" onClick={handlePlayBgMusic}>
+        <div className="relative w-screen h-screen items-center justify-center bg-[url('/images/gambar/tampilan-awal-mobile.gif')] md:bg-[url('/images/gambar/tampilan-awal.gif')] bg-cover bg-center bg-fixed font-utama text-white overflow-hidden" onClick={handlePlayBgMusic}>
             {/* Transition Layer */}
             <div
                 ref={transitionOutRef}
@@ -149,33 +149,45 @@ const MainMenuScreen = () => {
             <audio ref={inputFailSoundRef} src="/sounds/inputgagal.wav" preload="auto"></audio> {/* */}
 
             {/* Game Title */}
-            <h1 className="font-judul text-6xl md:text-7xl text-[#ffcf40] text-center mt-[-60px] md:mt-[60px] leading-tight md:leading-[100px] select-none" style={{ textShadow: '0px -2px black, 2px 0px black, 0px 6px black, -2px 0px black' }}>
-                Bjir<br />Work Life Balance {/* */}
+            <h1 className="font-judul text-[#ffcf40] text-center
+                text-[45px] mt-[30px] leading-[60px]
+                md:text-[70px] md:mt-[60px] md:leading-[100px]" 
+                style={{ textShadow: '0px -2px black, 2px 0px black, 0px 6px black, -2px 0px black' }}
+                >
+                Bjir<br />Work Life Balance
             </h1>
 
             {/* Avatar Selection */}
-            <div className="flex justify-center items-center my-4 md:my-10 select-none"> {/* */}
+            <div className="flex justify-center items-center select-none 
+                mt-8 mb-6
+                md:mt-8 md:mb-6"
+                >
                 <button
                     onClick={handlePrevAvatar}
-                    className="ganti-avatar text-[#ffcf40] text-5xl md:text-7xl font-utama bg-transparent border-none p-0 mx-4 md:mx-[30px] cursor-pointer transition-colors duration-500 hover:text-[#ff9d00]" //
-                    style={{ textShadow: '0px -2px black, 2px 0px black, 0px 2px black, -2px 0px black' }}
+                    className="ganti-avatar cursor-pointer bg-transparent border-none flex justify-center items-center transition-all duration-500 text-[#ffcf40] hover:text-[#ff9d00] text-shadow hover-text-shadow 
+                    text-6xl p-0 mx-[30px] my-[0]
+                    md:text-7xl md:p-0 md:mx-[30px] md:my-[0]"
                 >
                     &lt;
                 </button>
-                <div className="isi-avatar w-[100px] h-[100px] md:w-[150px] md:h-[150px] relative bg-blue-500 border-2 md:border-3 border-black"> {/* */}
+                <div className="bg-blue-600 border-2 border-black relative 
+                    w-[120px] h-[120px]
+                    md:w-[150px] md:h-[150px]"
+                    >
                     {AVATARS.map((item, index) => (
                         <img
                             key={index}
                             src={item.avatarSrc} // Ensure paths are correct, e.g., relative to public folder
                             alt={`Avatar ${index + 1}`}
-                            className={`avatar w-full h-full absolute top-0 left-0 transition-opacity duration-400 ease-in-out ${index === currentIndex ? 'opacity-100' : 'opacity-0'}`} //
+                            className={`w-full h-full absolute top-0 left-0 transition-opacity duration-400 ease-in-out ${index === currentIndex ? 'opacity-100' : 'opacity-0'}`}
                         />
                     ))}
                 </div>
                 <button
                     onClick={handleNextAvatar}
-                    className="ganti-avatar text-[#ffcf40] text-5xl md:text-7xl font-utama bg-transparent border-none p-0 mx-4 md:mx-[30px] cursor-pointer transition-colors duration-500 hover:text-[#ff9d00]" //
-                    style={{ textShadow: '0px -2px black, 2px 0px black, 0px 2px black, -2px 0px black' }}
+                    className="ganti-avatar cursor-pointer bg-transparent border-none flex justify-center items-center transition-all duration-500 text-[#ffcf40] hover:text-[#ff9d00] text-shadow hover-text-shadow 
+                    text-6xl p-0 mx-[30px] my-[0]
+                    md:text-7xl md:p-0 md:mx-[30px] md:my-[0]"
                 >
                     &gt;
                 </button>
@@ -183,14 +195,17 @@ const MainMenuScreen = () => {
 
             {/* Name Input and Start Button */}
             <div className="nama-mulai flex flex-col items-center w-full px-4"> {/* */}
-                <div className="isi-nama relative flex justify-center my-1 mx-auto w-full max-w-xs md:max-w-sm"> {/* */}
+                <div className="isi-nama relative flex justify-center my-1 mx-auto"> {/* */}
                     <input
                         type="text"
                         id="nama-pemain"
                         value={playerName}
                         onChange={handleNameChange}
                         onBlur={validateName} // Validate when input loses focus
-                        className={`nama-input w-[200px] md:w-auto flex-grow text-sm md:text-base font-bold text-center py-3 md:py-[15px] px-4 md:px-[30px] my-1 border-[3.5px] border-black rounded-[5px] font-utama placeholder-gray-500 text-black ${nameError ? 'bg-[#ffeeee] border-red-500' : 'bg-white'}`} //
+                        className={`z-[100] flex-grow font-bold text-center border-[3.5px] border-black rounded-[5px] font-utama placeholder-gray-500 text-black 
+                        w-[250px] text-[12px] py-3 px-4 my-1 
+                        md:w-[280px] md:text-sm md:py-3 md:px-4 md:my-1 
+                        ${nameError ? 'bg-[#ffeeee] border-red-500' : 'bg-white'}`} //
                         placeholder="Masukkan Nama"
                     />
                     {nameError && (
@@ -199,7 +214,10 @@ const MainMenuScreen = () => {
                             data-tooltip={nameError} //
                         >
                             !
-                            <span className="absolute left-full ml-2 min-w-max p-2 bg-red-600 text-white text-xs rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none whitespace-nowrap">
+                            <span className="absolute left-full min-w-max p-2 bg-red-600 text-white text-xs rounded-md box-shadow opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none whitespace-nowrap
+                                    mx-[-300px] mt-[-100px]
+                                    md:ml-2 md:mt-[0]"
+                            >
                                 {nameError}
                             </span>
                         </div>
@@ -208,21 +226,28 @@ const MainMenuScreen = () => {
                 <button
                     id="mulai"
                     onClick={handleStartGame}
-                    className="font-utama cursor-pointer text-[#ffcf40] text-2xl md:text-3xl w-[200px] md:w-[250px] font-bold py-2 md:py-[10px] my-1 mx-auto border-none bg-transparent hover:text-[#ff9d00]" //
-                    style={{ textShadow: '0px -2px black, 2px 0px black, 0px 2px black, -2px 0px black' }}
+                    className="z-[100] cursor-pointer text-[#ffcf40] text-2xl md:text-3xl w-[200px] md:w-[250px] font-bold py-2 md:py-[10px] my-1 mx-auto border-none bg-transparent duration-500 hover:text-[#ff9d00] text-shadow hover-text-shadow" //
                 >
                     Mulai Game
                 </button>
             </div>
 
             {/* Hidden Character Sprites (for preloading or if needed elsewhere, though GameContext handles the chosen one) */}
-            <div className="isi-karakter hidden"> {/* */}
+            <div className="flex z-[10]
+                mt-[-50px] mx-[270px]
+                md:mt-[-150px] md:mx-[470px]"
+                >
                 {AVATARS.map((item, index) => (
-                     <img key={index} src={item.characterSrc} alt="" className={`karakter ${index === currentIndex ? 'active' : ''}`} /> //
+                    <img key={index} src={item.characterSrc} alt="" 
+                        className={`fixed transition-all duration-400 ease-in-out
+                            w-[95px] 
+                            md:w-[120px]
+                            ${index === currentIndex ? 'opacity-100' : 'opacity-0'}`} />
                 ))}
             </div>
         </div>
     );
+
 };
 
 export default MainMenuScreen;
