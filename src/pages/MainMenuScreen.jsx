@@ -5,7 +5,7 @@ import { GameContext } from '../contexts/GameContext.jsx'; // Adjust path as nee
 // Define your avatar and character assets
 // In a real app, you might want to manage this list more dynamically or in a config file
 const AVATARS = [
-    { avatarSrc: '/images/objek/Avatar 1.png', characterSrc: '/images/objek/Karakter 1.gif' }, // Paths relative to your public folder or imported
+    { avatarSrc: '/images/objek/Avatar1.png', characterSrc: '/images/objek/Karakter1.gif' }, // Paths relative to your public folder or imported
     { avatarSrc: '/images/gambar/cth-g2.jpg', characterSrc: '/images/gambar/cth-g2.jpg' },
     { avatarSrc: '/images/gambar/cth-g3.png', characterSrc: '/images/gambar/cth-g3.png' },
     { avatarSrc: '/images/gambar/cth-g4.jpg', characterSrc: '/images/gambar/cth-g4.jpg' },
