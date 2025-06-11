@@ -11,7 +11,7 @@ import ActionButton from '../components/ActionButton.jsx';
 const INTERACTION_AREAS_GUNUNG = [
     {
         id: 'nginep', name: 'Penginapan',
-        rect: { x: 344, y: 381, width: 60, height: 20 },
+        rect: { x: 344, y: 400, width: 60, height: 120 },
         locationText: "di Penginapan",
         actions: [
             { text: 'Menginap (Rp 200)', cost: 200, effects: [{ stat: 'energy', valueSet: 70 }, { stat: 'hygiene', delta: -10 }], timeAdvanceHours: 8, type: 'sleep' },
@@ -20,7 +20,7 @@ const INTERACTION_AREAS_GUNUNG = [
     },
     {
         id: 'cafe', name: 'Kafe',
-        rect: { x: 670, y: 427, width: 60, height: 20 },
+        rect: { x: 665, y: 447, width: 65, height: 80 },
         locationText: "di Kafe Gunung",
         availableDaytimeOnly: true,
         actions: [
@@ -30,7 +30,7 @@ const INTERACTION_AREAS_GUNUNG = [
     },
     {
         id: 'sovenir', name: 'Toko Sovenir',
-        rect: { x: window.innerWidth - 530, y: window.innerHeight - 140, width: 100, height: 200 },
+        rect: { x: window.innerWidth - 630, y: window.innerHeight - 350, width: 360, height: 200 },
         locationText: "di Toko Sovenir",
         availableDaytimeOnly: true,
         actions: [
@@ -39,7 +39,7 @@ const INTERACTION_AREAS_GUNUNG = [
     },
     {
         id: 'foto', name: 'Spot Foto',
-        rect: { x: 555, y: window.innerHeight - 95, width: 70, height: 20 },
+        rect: { x: 535, y: window.innerHeight - 115, width: 90, height: 50 },
         locationText: "di Spot Foto",
         availableDaytimeOnly: true,
         actions: [
@@ -59,7 +59,7 @@ const GunungScreen = () => {
     const transitionGelapRef = useRef(null);
     const isMalam = gameState.gameHour >= 18 || gameState.gameHour < 6;
 
-    const gunungBounds = { minX: 100, maxX: 810, minY: 400, maxY: 560 };
+    const gunungBounds = { minX: 100, maxX: 950, minY: 390, maxY: 620 };
 
     const showPageTransition = () => {
         if (transitionGelapRef.current) {
@@ -167,15 +167,15 @@ const GunungScreen = () => {
                     initialY={450}
                     bounds={gunungBounds}
                     onPositionChange={handlePlayerPositionChange}
-                    spriteWidth={100}
-                    spriteHeight={100}
+                    spriteWidth={150}
+                    spriteHeight={150}
                 />
 
                 {currentInteractableArea && currentInteractableArea.actions && playerPosition && (
                     <div className="absolute z-[1000] pointer-events-auto" 
                     style={{
-                        left: `${playerPosition.x + playerPosition.width / 2}px`,
-                        top: `${playerPosition.y - 90}px`,
+                        left: `${currentInteractableArea.rect.x + currentInteractableArea.rect.width / 2}px`,
+                        top: `${currentInteractableArea.rect.y - 30 - currentInteractableArea.actions.length * 40}px`,
                         transform: 'translateX(-50%)',
                         display: 'flex',
                         flexDirection: 'column',
@@ -193,12 +193,21 @@ const GunungScreen = () => {
                     </div>
                 )}
 
+                {INTERACTION_AREAS_GUNUNG.map(area => {
+                    if (area.availableDaytimeOnly && isMalam) return null;
+                    return (
+                    <div key={area.id} className={`absolute border-[2px] border-dashed flex justify-center items-center ${currentInteractableArea?.id === area.id ? 'border-yellow-400 bg-yellow-400 bg-opacity-30' : 'border-green-500 bg-green-500 bg-opacity-20'}`}
+                        style={{ left: `${area.rect.x}px`, top: `${area.rect.y}px`, width: `${area.rect.width}px`, height: `${area.rect.height}px` }}>
+                        <span className="text-white text-[30px]">!{/*{area.name} {area.availableDaytimeOnly && "(Siang)"}*/}</span>
+                    </div>
+                 )})}
+
                 {showPhotoModal && (
-                    <div id="lihat-foto" className="fixed top-0 left-0 w-full h-full flex justify-center items-center z-[998] bg-black bg-opacity-70">
-                        <div id="isi-foto" className="relative w-full max-w-3xl bg-center bg-no-repeat bg-cover">
-                            <img id="pemandangan" src="/gambar/foto-gunung.png" alt="Pemandangan Gunung" className="w-full" />
+                    <div id="lihat-foto" className="fixed top-0 left-0 w-full h-full flex justify-center items-center z-[1005] bg-black bg-opacity-70">
+                        <div id="isi-foto" className="relative bg-center bg-no-repeat bg-cover">
+                            <img id="pemandangan" src="/images/gambar/foto-gunung.png" alt="Pemandangan Gunung" className="w-full" />
                             <button
-                                className="tutup-foto fixed bottom-5 right-5 w-[100px] py-2 px-3 bg-[#ffcf40] border-none rounded-md shadow-md cursor-pointer font-utama text-white font-bold text-4xl transition-all duration-1000 hover:w-[120px] hover:bg-[#d29e00] hover:border-2 hover:border-black"
+                                className="z-[1006] tutup-foto fixed bottom-5 right-5 w-[100px] py-2 px-3 bg-[#ffcf40] border-none rounded-md shadow-md cursor-pointer font-utama text-white font-bold text-4xl transition-all duration-1000 hover:w-[120px] hover:bg-[#d29e00] hover:border-2 hover:border-black"
                                 onClick={() => {
                                     setShowPhotoModal(false);
                                     if (transitionGelapRef.current) {
@@ -260,7 +269,7 @@ const GunungScreen = () => {
 //         locationText: "di Spot Foto",
 //         availableDaytimeOnly: true, //
 //         actions: [
-//             { text: 'Lihat Spot Foto (Rp 100)', cost: 100, effects: [{ stat: 'happiness', special: 'fotoHappiness' }], timeAdvanceHours: 1, type: 'view_photo' }, //
+//             { text: 'Lihat Spot Foto (Rp 100)', cost: 100, effects: [{ stat: 'happiness', special: 'fotoHappiness' }], timeAdvanceHours: 1, type: 'd' }, //
 //         ]
 //     },
 // ];
