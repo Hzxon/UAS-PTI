@@ -5,10 +5,10 @@ import { GameContext } from '../contexts/GameContext.jsx'; // Adjust path as nee
 // Define your avatar and character assets
 // In a real app, you might want to manage this list more dynamically or in a config file
 const AVATARS = [
-    { avatarSrc: '/images/objek/Avatar1.png', characterSrc: '/images/objek/Karakter1.gif' }, // Paths relative to your public folder or imported
-    { avatarSrc: '/images/gambar/cth-g2.jpg', characterSrc: '/images/gambar/cth-g2.jpg' },
-    { avatarSrc: '/images/gambar/cth-g3.png', characterSrc: '/images/gambar/cth-g3.png' },
-    { avatarSrc: '/images/gambar/cth-g4.jpg', characterSrc: '/images/gambar/cth-g4.jpg' },
+    { avatarSrc: '/images/avatar/avatar1.png', characterSrc: '/images/karakter/karakter1.gif' }, // Paths relative to your public folder or imported
+    { avatarSrc: '/images/avatar/avatar2.png', characterSrc: '/images/karakter/karakter2.gif' },
+    { avatarSrc: '/images/avatar/avatar3.png', characterSrc: '/images/karakter/karakter3.gif' },
+    { avatarSrc: '/images/avatar/avatar4.png', characterSrc: '/images/karakter/karakter4.gif' },
 ];
 
 const MainMenuScreen = () => {
@@ -170,7 +170,7 @@ const MainMenuScreen = () => {
                 >
                     &lt;
                 </button>
-                <div className="bg-blue-600 border-2 border-black relative 
+                <div className="bg-blue-600 border-[3px] border-black relative 
                     w-[120px] h-[120px]
                     md:w-[150px] md:h-[150px]"
                     >
@@ -234,14 +234,14 @@ const MainMenuScreen = () => {
 
             {/* Hidden Character Sprites (for preloading or if needed elsewhere, though GameContext handles the chosen one) */}
             <div className="flex z-[10]
-                mt-[-50px] mx-[270px]
-                md:mt-[-150px] md:mx-[470px]"
+                mt-[-65px] mx-[275px]
+                md:mt-[-150px] md:mx-[500px]"
                 >
                 {AVATARS.map((item, index) => (
                     <img key={index} src={item.characterSrc} alt="" 
                         className={`fixed transition-all duration-400 ease-in-out
-                            w-[95px] 
-                            md:w-[120px]
+                            w-[85px] 
+                            md:w-[95px]
                             ${index === currentIndex ? 'opacity-100' : 'opacity-0'}`} />
                 ))}
             </div>
