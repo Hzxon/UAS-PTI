@@ -12,6 +12,15 @@ export default {
         'judul': ['Judul Tampilan Awal', 'sans-serif'], //
         'utama': ['Font Utama', 'sans-serif'],       //
       },
+      animation: {
+        blink: 'blink 1.5s step-end infinite',
+      },
+      keyframes: {
+        blink: {
+          '0%, 100%': { opacity: '1' },
+          '50%': { opacity: '0' },
+        },
+      },
       // You can extend other theme properties here if needed:
       // colors: {
       //   'custom-yellow': '#ffcf40', //

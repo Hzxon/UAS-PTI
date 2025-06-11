@@ -28,9 +28,21 @@ const Map = ({ onNavigateStart }) => {
 
     useEffect(() => {
         // Update current location marker based on route
+        const handleKeyDown = (e) => {
+            const key = e.key.toLowerCase();
+            if(key === 'q' || key === 'm'){
+                setIsMapOpen(prev => !prev);
+            }
+        }
+        window.addEventListener('keydown', handleKeyDown);
+        
         const currentPath = reactLocation.pathname;
         const newLocationKey = Object.keys(LOCATIONS_DATA).find(key => LOCATIONS_DATA[key].path === currentPath) || 'rumah';
         setCurrentMapLocationKey(newLocationKey);
+
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown); // Cleanup on unmount
+        };
     }, [reactLocation.pathname]);
 
 
@@ -160,7 +172,9 @@ const Map = ({ onNavigateStart }) => {
                                                 }}
                                                 onClick={() => handleLocationClick(key)}
                                             >
-                                                <span className="tanda animate-blink">!</span> {/* */}
+                                                <span className="tanda animate-blink"
+                                                        style={{ textShadow: '0px -3px black, 3px 0px black, 0px 3px black, -3px 0px black' }}
+                                                >!</span> {/* */}
                                                 <span
                                                     className="tooltip-text absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-max max-w-xs px-2 py-1 bg-red-600 border-2 border-black text-white text-center text-xs md:text-sm rounded-[4px] z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none whitespace-nowrap" //
                                                 >
