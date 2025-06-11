@@ -7,6 +7,7 @@ import Map from '../components/Map.jsx';
 import ArrowControls from '../components/ArrowControls.jsx';
 import ScreenTransition from '../components/ScreenTransition.jsx';
 import ActionButton from '../components/ActionButton.jsx';
+import InventoryBag from '../components/InventoryBag.jsx';
 
 const INTERACTION_AREAS_GUNUNG = [
     {
@@ -55,6 +56,7 @@ const GunungScreen = () => {
     const [showPhotoModal, setShowPhotoModal] = useState(false);
     const [sovenirPurchaseCount, setSovenirPurchaseCount] = useState(0);
     const [photoViewCount, setPhotoViewCount] = useState(0);
+    const [newItem, setNewItem] = useState(null);
 
     const transitionGelapRef = useRef(null);
     const isMalam = gameState.gameHour >= 18 || gameState.gameHour < 6;
@@ -128,10 +130,12 @@ const GunungScreen = () => {
                         setSovenirPurchaseCount(prev => prev + 1);
                     } else if (effect.special === 'fotoHappiness') {
                         let hapDelta = 50;
+                        let itemName = 'Foto Indah Gunung';
                         if (photoViewCount === 1) hapDelta = 0;
                         else if (photoViewCount >= 2) hapDelta = -50;
                         dispatch({ type: 'UPDATE_STATUS_DELTA', stat: 'happiness', delta: hapDelta });
                         setPhotoViewCount(prev => prev + 1);
+                        setNewItem({ name: itemName });
                     }
                 });
             }
@@ -151,6 +155,18 @@ const GunungScreen = () => {
 
         setCurrentInteractableArea(null);
     };
+
+    useEffect(() => {
+        const handleUnload = () => {
+            localStorage.removeItem('inventoryItems');
+        };
+    
+        window.addEventListener('beforeunload', handleUnload);
+        return () => {
+            window.removeEventListener('beforeunload', handleUnload);
+        };
+    }, []);
+
 
     return (
         <ScreenTransition>
@@ -224,6 +240,7 @@ const GunungScreen = () => {
 
                 <Map onNavigateStart={showPageTransition} />
                 <ArrowControls />
+                <InventoryBag newItem={newItem} />
             </div>
         </ScreenTransition>
     );
