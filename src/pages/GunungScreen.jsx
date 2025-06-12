@@ -130,12 +130,20 @@ const GunungScreen = () => {
                         setSovenirPurchaseCount(prev => prev + 1);
                     } else if (effect.special === 'fotoHappiness') {
                         let hapDelta = 50;
-                        let itemName = 'Foto Indah Gunung';
                         if (photoViewCount === 1) hapDelta = 0;
                         else if (photoViewCount >= 2) hapDelta = -50;
                         dispatch({ type: 'UPDATE_STATUS_DELTA', stat: 'happiness', delta: hapDelta });
                         setPhotoViewCount(prev => prev + 1);
-                        setNewItem({ name: itemName });
+                        setNewItem({ 
+                            name: 'Foto Indah Gunung', 
+                            desc: 'tes',
+                            image: '/images/objek/Tas.png',
+                            usable: true,
+                            useAction: {
+                            label: "Makan",
+                            effects: [{ stat: "hunger", delta: 20 }],
+                            },
+                        });
                     }
                 });
             }

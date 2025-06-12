@@ -37,7 +37,7 @@ const InfoBar = () => {
             id="info-bar"
             // Styling from #info-bar in style.css
             // And #arena-top for font family context
-            className="pt-3 md:pt-5 flex flex-col md:flex-row justify-center items-center text-center md:space-x-4 font-utama text-xs sm:text-sm text-white select-none"
+            className="bg-black bg-opacity-50 pt-3 md:pt-1 md:pb-2 flex flex-col md:flex-row justify-center items-center text-center md:space-x-4 font-utama text-xs sm:text-sm text-white select-none"
         >
             <span id="greetingText" className="mb-1 md:mb-0">{getGreeting()}</span>
             <span className="hidden md:inline">|</span>
