@@ -8,6 +8,28 @@ import ArrowControls from '../components/ArrowControls.jsx';
 import ScreenTransition from '../components/ScreenTransition.jsx';
 import ActionButton from '../components/ActionButton.jsx';
 import InventoryBag from '../components/InventoryBag.jsx';
+import ActivityLoadingScreen from '../components/ActivityLoadingScreen.jsx';
+
+const ACTIVITY_CONFIG = {
+    toilet: {
+        duration: 5000,
+        message: 'Sedang menggunakan Toilet...',
+        gifUrl: '/images/gambar/animasiToilet.gif',
+        effects: [
+            { stat: 'hygiene', delta: -10 },
+            {stat: 'happiness', delta: 10}
+        ],
+    },
+    mandi: {
+        duration: 8000,
+        message: 'Sedang mandi 😶‍🌫️',
+        gifUrl: '/images/gambar/animasiMandi.gif',
+        effects: [
+            { stat: 'hygiene', delta: 50, interval: true }, 
+            {stat: 'happiness', delta:20, interval: true}
+        ],
+    },
+};
 
 const INTERACTION_AREAS_RUMAH = [
     { id: 'bed', name: 'Bed', rect: {x: 60, y: 135, width: 302, height: 305}, 
@@ -16,7 +38,7 @@ const INTERACTION_AREAS_RUMAH = [
                 text: 'Tidur di Kasur', 
                 cost: 0, 
                 type: 'sleep',
-                effects: [{ stat: 'energy', valueSet: 70, interval: true }, {stat: 'happiness', delta: 1, interval: true}]
+                effects: [{ stat: 'energy', valueSet: 85, interval: true }, {stat: 'happiness', delta: 30, interval: true}]
             }
         ] 
     }, //
@@ -25,16 +47,15 @@ const INTERACTION_AREAS_RUMAH = [
             {
                 text: 'Makan di Meja', 
                 cost: 0, 
-                effects: [{ stat: 'hunger', delta: 1, interval: true }] 
+                effects: [{ stat: 'hunger', delta: 30, interval: true }] 
             }
         ]
     }, //
-    { id: 'toilet', name: 'Toilet', rect: {x: 645, y: 80, width: 100, height: 100}, 
+    { id: 'toilet', name: 'Toilet', rect: {x: 645, y: 80, width: 100, height: 100},
         actions: [
             {
                 text: 'Gunakan Toilet', 
-                cost: 0, 
-                effects: [{ stat: 'hygiene', delta: 2, interval: true }] 
+                activityKey: 'toilet',
             }
         ]
     }, //
@@ -42,8 +63,7 @@ const INTERACTION_AREAS_RUMAH = [
         actions: [
             {
                 text: 'Mandi', 
-                cost: 0, 
-                effects: [{ stat: 'hygiene', delta: 3, interval: true }, {stat: 'happiness', delta:1, interval: true}] 
+                activityKey: 'mandi', 
             }
         ]
     }, //
@@ -54,6 +74,8 @@ const RumahScreen = () => {
     const [playerPosition, setPlayerPosition] = useState(null);
     const [currentInteractableArea, setCurrentInteractableArea] = useState(null);
     const transitionGelapRef = useRef(null);
+    const [isLoadingActivity, setIsLoadingActivity] = useState(false);
+    const [currentActivity, setCurrentActivity] = useState(null);
 
     useEffect(() => {
         dispatch({ type: 'SET_LOCATION', payload: 'Rumah' });
@@ -77,10 +99,16 @@ const RumahScreen = () => {
     const handleInteraction = (action) => {
         if (!action) return;
         
-        const { cost, effects, type } = action;
+        const { cost, effects, type, activityKey } = action;
 
         if (cost > 0 && gameState.money < cost) {
             alert(`Uang tidak cukup! Dibutuhkan Rp ${cost}, kamu memiliki Rp ${gameState.money}`);
+            return;
+        }
+
+        if (activityKey) {
+            setCurrentActivity(activityKey);
+            setIsLoadingActivity(true);
             return;
         }
 
@@ -174,7 +202,7 @@ const RumahScreen = () => {
                         className="absolute z-[1000] pointer-events-auto"
                         style={{
                             left: `${currentInteractableArea.rect.x + currentInteractableArea.rect.width / 2}px`,
-                            top: `${currentInteractableArea.rect.y - 30 - currentInteractableArea.actions.length * 40}px`,
+                            top: `${currentInteractableArea.rect.y + 50 - currentInteractableArea.actions.length * 40}px`,
                             transform: 'translateX(-50%)',
                             display: 'flex',
                             flexDirection: 'column',
@@ -199,6 +227,22 @@ const RumahScreen = () => {
                         <span className="text-white text-[30px]">!{/*{area.name}*/}</span>
                     </div>
                 ))}
+
+                {isLoadingActivity && currentActivity && (
+                    <ActivityLoadingScreen
+                        duration={ACTIVITY_CONFIG[currentActivity].duration}
+                        message={ACTIVITY_CONFIG[currentActivity].message}
+                        gifUrl={ACTIVITY_CONFIG[currentActivity].gifUrl}
+                        onFinish={() => {
+                            ACTIVITY_CONFIG[currentActivity].effects.forEach(effect => {
+                                dispatch({ type: 'UPDATE_STATUS_DELTA', stat: effect.stat, delta: effect.delta });
+                            });
+                            setIsLoadingActivity(false);
+                            setCurrentInteractableArea(null);
+                            setCurrentActivity(null);
+                        }}
+                    />
+                )}
 
                 <Map onNavigateStart={showTransitionGelap} />
                 <ArrowControls />
