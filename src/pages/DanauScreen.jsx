@@ -16,9 +16,10 @@ const ACTIVITY_CONFIG = {
         message: 'Sedang berenang di danau...',
         gifUrl: '/images/gambar/animasiBerenang.gif',
         effects: [
-            { stat: 'happiness', delta: 5 },
-            { stat: 'energy', delta: -2 },
-            { stat: 'hygiene', delta: 3 }
+            { stat: 'happiness', delta: 20 },
+            { stat: 'energy', delta: -5 },
+            { stat: 'hygiene', delta: -3 },
+            { stat: 'hunger', delta: -5},
         ],
     },
     fishing: {
@@ -26,8 +27,10 @@ const ACTIVITY_CONFIG = {
         message: 'Sedang memancing...',
         gifUrl: '/images/gambar/animasiMancing.gif',
         effects: [
-            { stat: 'happiness', delta: 8 },
-            { stat: 'energy', delta: -5 }
+            { stat: 'happiness', delta: 10 },
+            { stat: 'energy', delta: -10 },
+            { stat: 'hygiene', delta: -5},
+            { stat: 'hunger', delta: -5},
         ],
         cost: -200
     },
@@ -36,8 +39,10 @@ const ACTIVITY_CONFIG = {
         message: 'Sedang main jetski...',
         gifUrl: '/images/gambar/animasiJetski.gif',
         effects: [
-            { stat: 'happiness', delta: 8 },
-            { stat: 'energy', delta: -5 }
+            { stat: 'happiness', delta: 25 },
+            { stat: 'energy', delta: -15 },
+            { stat: 'hygiene', delta: -5},
+            { stat: 'hunger', delta: -5},
         ],
         cost: -200
     },
@@ -185,9 +190,9 @@ const DanauScreen = () => {
                             useAction: {
                                 label: "Minum",
                                 effects: [
-                                    { stat: 'hunger', delta: 5 },
-                                    { stat: 'happiness', delta: 5 },
-                                    { stat: 'energy', delta: 3 }
+                                    { stat: 'hunger', delta: 6 },
+                                    { stat: 'happiness', delta: 20 },
+                                    { stat: 'energy', delta: 10 },
                                 ]
                             },
                         },

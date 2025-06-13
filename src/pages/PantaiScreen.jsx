@@ -16,8 +16,10 @@ const ACTIVITY_CONFIG = {
         message: 'Sedang bermain Voli...',
         gifUrl: '/images/gambar/animasiVoli.gif',
         effects: [
-            { stat: 'happiness', delta: 2 },
-            { stat: 'energy', delta: -1 },
+            { stat: 'happiness', delta: 15 },
+            { stat: 'energy', delta: -5 },
+            { stat: 'hygiene', delta: -5},
+            { stat: 'hunger', delta: -3},
         ],
     },
     berenang: {
@@ -25,8 +27,10 @@ const ACTIVITY_CONFIG = {
         message: 'Sedang berenang...',
         gifUrl: '/images/gambar/animasiBerenang.gif',
         effects: [
-            { stat: 'hygiene', delta: -1 },
-            { stat: 'happiness', delta: 2 },
+            { stat: 'hygiene', delta: -3 },
+            { stat: 'happiness', delta: 20 },
+            { stat: 'hunger', delta: -5},
+            { stat: 'energy', delta: -5},
         ],
     },
     mainPasir: {
@@ -34,7 +38,10 @@ const ACTIVITY_CONFIG = {
         message: 'Sedang main pasir...',
         gifUrl: '/images/gambar/animasiMainPasir.gif',
         effects: [
-            { stat: 'hygiene', delta: -2 },
+            { stat: 'hygiene', delta: -8 },
+            { stat: 'happiness', delta: 15 },
+            { stat: 'hunger', delta: -5},
+            { stat: 'energy', delta: -5},
         ],
     },
 };
@@ -63,8 +70,8 @@ const INTERACTION_AREAS_PANTAI = [
                 text: 'Makan (Rp 100)',
                 cost: 100,
                 effects: [
-                    { stat: 'hunger', delta: 15 },
-                    { stat: 'happiness', delta: 3 }
+                    { stat: 'hunger', delta: 25 },
+                    { stat: 'happiness', delta: 10 }
                 ]
             }
         ]
@@ -169,9 +176,9 @@ const PantaiScreen = () => {
                                 useAction: {
                                     label: "Minum",
                                     effects: [
-                                        { stat: 'hunger', delta: 5 },
-                                        { stat: 'happiness', delta: 5 },
-                                        { stat: 'energy', delta: 3 }
+                                        { stat: 'hunger', delta: 10 },
+                                        { stat: 'happiness', delta: 20 },
+                                        { stat: 'energy', delta: 25 }
                                     ]
                                 },
                             },

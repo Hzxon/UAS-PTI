@@ -16,8 +16,9 @@ const ACTIVITY_CONFIG = {
         message: 'Sedang bermain Billiard...',
         gifUrl: '/images/gambar/animasiBiliard.gif',
         effects: [
-            { stat: 'happiness', delta: 2 },
-            { stat: 'energy', delta: -1 },
+            { stat: 'happiness', delta: 20 },
+            { stat: 'energy', delta: -5 },
+            { stat: 'hunger', delta: -5},
         ],
     },
     toilet: {
@@ -25,7 +26,9 @@ const ACTIVITY_CONFIG = {
         message: 'Sedang menggunakan Toilet...',
         gifUrl: '/images/gambar/animasiToilet.gif',
         effects: [
-            { stat: 'hygiene', delta: 2 },
+            { stat: 'hygiene', delta: -10 },
+            {stat: 'happiness', delta: 10}
+
         ],
     },
 };
@@ -139,9 +142,9 @@ const BilliardScreen = () => {
                             useAction: {
                                 label: "Minum",
                                 effects: [
-                                    { stat: 'hunger', delta: 5 },
-                                    { stat: 'happiness', delta: 5 },
-                                    { stat: 'energy', delta: 3 }
+                                    { stat: 'hunger', delta: 6 },
+                                    { stat: 'happiness', delta: 10 },
+                                    { stat: 'energy', delta: 5 }
                                 ]
                             },
                         },
@@ -159,8 +162,8 @@ const BilliardScreen = () => {
                                 label: "Minum",
                                 effects: [
                                     { stat: 'hunger', delta: 5 },
-                                    { stat: 'happiness', delta: 5 },
-                                    { stat: 'energy', delta: 3 }
+                                    { stat: 'happiness', delta: 15 },
+                                    { stat: 'energy', delta: 10 }
                                 ]
                             },
                         },
