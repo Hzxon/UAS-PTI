@@ -10,6 +10,42 @@ import ActionButton from '../components/ActionButton.jsx';
 import InventoryBag from '../components/InventoryBag.jsx';
 import ActivityLoadingScreen from '../components/ActivityLoadingScreen.jsx';
 
+const ACTIVITY_CONFIG = {
+    ngopi: {
+        duration: 8000,
+        message: 'Sedang memikirkan masa depan negeri...',
+        gifUrl: '/images/gambar/ngopi.gif',
+        effects: [
+            { stat: 'hunger', delta: 5 }, 
+            { stat: 'energy', delta: 30 }, 
+            { stat: 'happiness', delta: 30 }, 
+            { stat: 'hygiene', delta: -10 },
+        ],
+        timeAdvanceHours: 1,
+    },
+    makan: {
+        duration: 6000,
+        message: 'Menikmati Nasi Goreng 😋',
+        gifUrl: '/images/gambar/animasiMakan.gif',
+        effects: [
+            { stat: 'hunger', delta: 20 }, 
+            { stat: 'happiness', delta: 10 }, 
+            { stat: 'energy', delta: -5 }, 
+            { stat: 'hygiene', delta: -10 }
+        ],
+        timeAdvanceHours: 1,
+    },
+    bungkus: {
+        duration: 6000,
+        message: 'Nungguin Nasi Goreng 😪',
+        gifUrl: '/images/gambar/animasiMasak.gif',
+        effects: [
+            { special: 'nasiGoreng' }
+        ],
+        timeAdvanceHours: 1,
+    },
+};
+
 const INTERACTION_AREAS_GUNUNG = [
     {
         id: 'nginep', name: 'Penginapan',
@@ -27,11 +63,11 @@ const INTERACTION_AREAS_GUNUNG = [
         locationText: "di Kafe Gunung",
         availableDaytimeOnly: true,
         actions: [
-            { text: 'Beli Nasi Goreng (Rp 40)', cost: 40, effects: [{ stat: 'hunger', delta: 20 }, { stat: 'happiness', delta: 10 }, { stat: 'energy', delta: -5 }, { stat: 'hygiene', delta: -10 }], timeAdvanceHours: 1 },
+            { text: 'Beli Nasi Goreng (Rp 40)', cost: 40, activityKey: 'makan' },
             { text: 'Beli Es Teh Manis (Rp 15)', cost: 15, effects: [{ stat: 'hunger', delta: 5 }, { stat: 'happiness', delta: 15 }, { stat: 'energy', delta: 3 }, { stat: 'hygiene', delta: -10 }] },
-            { text: 'Bungkus Nasi Goreng (Rp 40)', cost: 40, effects: [{ special: 'nasiGoreng' }] },
+            { text: 'Bungkus Nasi Goreng (Rp 40)', cost: 40, activityKey: 'bungkus' },
             { text: 'Beli Aqua Botol (Rp 8)', cost: 8, effects: [{ special: 'aquaBotol' }] },
-            { text: 'Beli Kopi (Rp 20)', cost: 25, effects: [{ stat: 'hunger', delta: 5 }, { stat: 'happiness', delta: 30 }, { stat: 'energy', delta: 30 }, { stat: 'hygiene', delta: -10 }] },
+            { text: 'Beli Kopi (Rp 20)', cost: 20, activityKey: 'ngopi' },
         ]
     },
     {
@@ -63,6 +99,8 @@ const GunungScreen = () => {
     const [photoViewCount, setPhotoViewCount] = useState(0);
     const [newItem, setNewItem] = useState(null);
     const [isLoadingActivity, setIsLoadingActivity] = useState(false);
+    const [currentActivity, setCurrentActivity] = useState(null);
+    const [lastActivityCost, setLastActivityCost] = useState(0);
 
     const transitionGelapRef = useRef(null);
     const isMalam = gameState.gameHour >= 18 || gameState.gameHour < 6;
@@ -105,16 +143,19 @@ const GunungScreen = () => {
 
     const handleGenericInteraction = (action) => {
         if (!action) return;
-        const { text, cost, effects, timeAdvanceHours, type } = action;
+        const { text, cost, effects, timeAdvanceHours, type, activityKey } = action;
         if (gameState.money < cost) {
             alert("Uang tidak cukup!");
             return;
         }
 
-        if (text === "Beli Kopi (Rp 20)") {
-                setIsLoadingActivity(true);
-                return;
-            }
+        if (activityKey) {
+            setCurrentActivity(activityKey);
+            setLastActivityCost(cost);
+            setIsLoadingActivity(true);
+            return;
+        }
+
 
         const needsGelapTransition = type === 'sleep' || type === 'sleep_bath' || type === 'view_photo';
         if (needsGelapTransition && transitionGelapRef.current) {
@@ -332,19 +373,50 @@ const GunungScreen = () => {
 
                 {isLoadingActivity && (
                     <ActivityLoadingScreen
-                        duration={6000} 
-                        message="Sedang memikirkan masa depan negeri..."
-                        gifUrl='/images/gambar/ngopi.gif'
+                        duration={ACTIVITY_CONFIG[currentActivity].duration}
+                        message={ACTIVITY_CONFIG[currentActivity].message}
+                        gifUrl={ACTIVITY_CONFIG[currentActivity].gifUrl}
                         onFinish={() => {
-                            dispatch({ type: 'UPDATE_STATUS_DELTA', stat: 'hunger', delta: 5 });
-                            dispatch({ type: 'UPDATE_STATUS_DELTA', stat: 'energy', delta: 30 });
-                            dispatch({ type: 'UPDATE_STATUS_DELTA', stat: 'happiness', delta: 30 });
-                            dispatch({ type: 'UPDATE_STATUS_DELTA', stat: 'hygiene', delta: -10 });
-                            dispatch({ type: 'UPDATE_MONEY', amount: -20 });
-                            dispatch({ type: 'ADVANCE_TIME', hours: 1 });
-
+                            const config = ACTIVITY_CONFIG[currentActivity];
+                        
+                            config.effects.forEach(effect => {
+                                if (effect.special === 'nasiGoreng') {
+                                    dispatch({
+                                        type: 'ADD_ITEM',
+                                        payload: {
+                                            name: 'NASI GORENG',
+                                            desc: 'Enak',
+                                            kelangkaan: 'Umum',
+                                            image: '/images/objek/nasiGoreng.png',
+                                            usable: true,
+                                            useAction: {
+                                                label: "Makan",
+                                                effects: [
+                                                    { stat: 'hunger', delta: 20 },
+                                                    { stat: 'happiness', delta: 5 },
+                                                    { stat: 'energy', delta: 10 },
+                                                    { stat: 'hygiene', delta: -10 }
+                                                ]
+                                            }
+                                        }
+                                    });
+                                } else if (effect.stat && effect.delta !== undefined) {
+                                    dispatch({ type: 'UPDATE_STATUS_DELTA', stat: effect.stat, delta: effect.delta });
+                                }
+                            });
+                        
+                            if (config.timeAdvanceHours) {
+                                dispatch({ type: 'ADVANCE_TIME', hours: config.timeAdvanceHours });
+                            }
+                        
+                            if (lastActivityCost > 0) {
+                                dispatch({ type: 'UPDATE_MONEY', amount: -lastActivityCost });
+                            }
+                        
                             setIsLoadingActivity(false);
                             setCurrentInteractableArea(null);
+                            setCurrentActivity(null);
+                            setLastActivityCost(0);
                         }}
                     />
                 )}
