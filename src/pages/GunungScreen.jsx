@@ -8,6 +8,7 @@ import ArrowControls from '../components/ArrowControls.jsx';
 import ScreenTransition from '../components/ScreenTransition.jsx';
 import ActionButton from '../components/ActionButton.jsx';
 import InventoryBag from '../components/InventoryBag.jsx';
+import ActivityLoadingScreen from '../components/ActivityLoadingScreen.jsx';
 
 const INTERACTION_AREAS_GUNUNG = [
     {
@@ -61,6 +62,7 @@ const GunungScreen = () => {
     const [sovenirPurchaseCount, setSovenirPurchaseCount] = useState(0);
     const [photoViewCount, setPhotoViewCount] = useState(0);
     const [newItem, setNewItem] = useState(null);
+    const [isLoadingActivity, setIsLoadingActivity] = useState(false);
 
     const transitionGelapRef = useRef(null);
     const isMalam = gameState.gameHour >= 18 || gameState.gameHour < 6;
@@ -103,11 +105,16 @@ const GunungScreen = () => {
 
     const handleGenericInteraction = (action) => {
         if (!action) return;
-        const { cost, effects, timeAdvanceHours, type } = action;
+        const { text, cost, effects, timeAdvanceHours, type } = action;
         if (gameState.money < cost) {
             alert("Uang tidak cukup!");
             return;
         }
+
+        if (text === "Beli Kopi (Rp 20)") {
+                setIsLoadingActivity(true);
+                return;
+            }
 
         const needsGelapTransition = type === 'sleep' || type === 'sleep_bath' || type === 'view_photo';
         if (needsGelapTransition && transitionGelapRef.current) {
@@ -313,6 +320,25 @@ const GunungScreen = () => {
                             </button>
                         </div>
                     </div>
+                )}
+
+                {isLoadingActivity && (
+                    <ActivityLoadingScreen
+                        duration={6000} 
+                        message="Sedang memikirkan masa depan negeri..."
+                        gifUrl='/images/gambar/ngopi.gif'
+                        onFinish={() => {
+                            dispatch({ type: 'UPDATE_STATUS_DELTA', stat: 'hunger', delta: 5 });
+                            dispatch({ type: 'UPDATE_STATUS_DELTA', stat: 'energy', delta: 30 });
+                            dispatch({ type: 'UPDATE_STATUS_DELTA', stat: 'happiness', delta: 30 });
+                            dispatch({ type: 'UPDATE_STATUS_DELTA', stat: 'hygiene', delta: -10 });
+                            dispatch({ type: 'UPDATE_MONEY', amount: -20 });
+                            dispatch({ type: 'ADVANCE_TIME', hours: 1 });
+
+                            setIsLoadingActivity(false);
+                            setCurrentInteractableArea(null);
+                        }}
+                    />
                 )}
 
                 <Map onNavigateStart={showPageTransition} />
