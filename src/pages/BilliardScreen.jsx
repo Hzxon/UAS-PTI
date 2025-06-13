@@ -8,6 +8,8 @@ import ArrowControls from '../components/ArrowControls.jsx';
 import ScreenTransition from '../components/ScreenTransition.jsx';
 import ActionButton from '../components/ActionButton.jsx';
 import InventoryBag from '../components/InventoryBag.jsx';
+import ActivityLoadingScreen from '../components/ActivityLoadingScreen.jsx';
+
 
 const INTERACTION_AREAS_BILLIARD = [
     {
@@ -66,6 +68,8 @@ const BilliardScreen = () => {
     const [playerPosition, setPlayerPosition] = useState(null);
     const [currentInteractableArea, setCurrentInteractableArea] = useState(null);
     const transitionGelapRef = useRef(null);
+    const [isLoadingActivity, setIsLoadingActivity] = useState(false);
+
 
     useEffect(() => {
         dispatch({ type: 'SET_LOCATION', payload: 'Billiard' });
@@ -91,66 +95,67 @@ const BilliardScreen = () => {
         });
     }, [dispatch]);
 
-    const handleInteraction = (action) => {
-        if (!action) return;
+        const handleInteraction = (action) => {
+            if (!action) return;
 
-        const { cost, effects } = action;
+            const { text, cost, effects } = action;
 
-        if (cost > 0 && gameState.money < cost) {
-            alert(`Uang tidak cukup! Dibutuhkan Rp ${cost}, kamu memiliki Rp ${gameState.money}`);
-            return;
-        }
+            if (cost > 0 && gameState.money < cost) {
+                alert(`Uang tidak cukup! Dibutuhkan Rp ${cost}, kamu memiliki Rp ${gameState.money}`);
+                return;
+            }
 
-        dispatch({ type: 'UPDATE_MONEY', amount: -cost });
-         if (effects) {
+            // Khusus untuk "Main Billiard", tampilkan loading dan jalankan efek setelahnya
+            if (text === "Main Billiard") {
+                setIsLoadingActivity(true);
+                return; // jangan lanjut dulu
+            }
+
+            dispatch({ type: 'UPDATE_MONEY', amount: -cost });
+
+            if (effects) {
                 effects.forEach(effect => {
                     if (effect.valueSet !== undefined) {
                         dispatch({ type: 'UPDATE_STAT', stat: effect.stat, value: effect.valueSet });
                     } else if (effect.delta !== undefined) {
                         dispatch({ type: 'UPDATE_STATUS_DELTA', stat: effect.stat, delta: effect.delta });
-                    }else if(effect.special === 'aquaBotol'){
+                    } else if (effect.special === 'aquaBotol') {
                         dispatch({
-                                type: 'ADD_ITEM',
-                                payload: {
-                                    name: 'AQUA',
-                                    desc: 'Seger',
-                                    kelangkaan: 'Umum',
-                                    image: '/images/objek/aquaBotol.png',
-                                    usable: true,
-                                    useAction: {
-                                        label: "Minum",
-                                        effects: [{ stat: 'hunger', delta: 5 }, { stat: 'happiness', delta: 5 }, { stat: 'energy', delta: 3 }]
-                                    },
+                            type: 'ADD_ITEM',
+                            payload: {
+                                name: 'AQUA',
+                                desc: 'Seger',
+                                kelangkaan: 'Umum',
+                                image: '/images/objek/aquaBotol.png',
+                                usable: true,
+                                useAction: {
+                                    label: "Minum",
+                                    effects: [{ stat: 'hunger', delta: 5 }, { stat: 'happiness', delta: 5 }, { stat: 'energy', delta: 3 }]
                                 },
+                            },
                         });
-                    }else if(effect.special === 'amerBotol'){
+                    } else if (effect.special === 'amerBotol') {
                         dispatch({
-                                type: 'ADD_ITEM',
-                                payload: {
-                                    name: 'AMER',
-                                    desc: 'Hareudang Euyy',
-                                    kelangkaan: 'Biasa',
-                                    image: '/images/objek/amerBotol.png',
-                                    usable: true,
-                                    useAction: {
-                                        label: "Minum",
-                                        effects: [{ stat: 'hunger', delta: 5 }, { stat: 'happiness', delta: 5 }, { stat: 'energy', delta: 3 }]
-                                    },
+                            type: 'ADD_ITEM',
+                            payload: {
+                                name: 'AMER',
+                                desc: 'Hareudang Euyy',
+                                kelangkaan: 'Biasa',
+                                image: '/images/objek/amerBotol.png',
+                                usable: true,
+                                useAction: {
+                                    label: "Minum",
+                                    effects: [{ stat: 'hunger', delta: 5 }, { stat: 'happiness', delta: 5 }, { stat: 'energy', delta: 3 }]
                                 },
+                            },
                         });
                     }
                 });
             }
-        effects.forEach(effect => {
-            dispatch({
-                type: 'UPDATE_STATUS_DELTA',
-                stat: effect.stat,
-                delta: effect.delta
-            });
-        });
 
-        setCurrentInteractableArea(null);
-    };
+            setCurrentInteractableArea(null);
+        };
+
 
     const billiardBounds = {
         minX: 50,
@@ -225,6 +230,22 @@ const BilliardScreen = () => {
                         <span className="text-white text-[30px]">!{/*{area.name}*/}</span>
                     </div>
                 ))}
+
+                {isLoadingActivity && (
+                    <ActivityLoadingScreen
+                        duration={3000} 
+                        message="Sedang bermain Billiard..."
+                        onFinish={() => {
+                            // Efek setelah loading selesai
+                            dispatch({ type: 'UPDATE_STATUS_DELTA', stat: 'happiness', delta: 2 });
+                            dispatch({ type: 'UPDATE_STATUS_DELTA', stat: 'energy', delta: -1 });
+
+                            setIsLoadingActivity(false);
+                            setCurrentInteractableArea(null);
+                        }}
+                    />
+                )}
+
 
                 
 
