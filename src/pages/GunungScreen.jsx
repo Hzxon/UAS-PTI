@@ -16,9 +16,9 @@ const INTERACTION_AREAS_GUNUNG = [
         rect: { x: 344, y: 400, width: 60, height: 120 },
         locationText: "di Penginapan",
         actions: [
-            { text: 'Menginap (Rp 200)', cost: 200, effects: [{ stat: 'energy', valueSet: 70 }, { stat: 'hygiene', delta: -10 }], timeAdvanceHours: 8, type: 'sleep' },
-            { text: 'Nginep + Mandi (Rp 200)', cost: 200, effects: [{ stat: 'energy', valueSet: 100 }, { stat: 'hygiene', valueSet: 40 }], timeAdvanceHours: 9, type: 'sleep_bath' },
-            { text: 'Nginep + Mandi + Bonus Handuk 🤫 (Rp 200)', cost: 200, effects: [{ stat: 'energy', valueSet: 100 }, { stat: 'hygiene', valueSet: 40 }, { special: 'malingHanduk' }], timeAdvanceHours: 9, type: 'sleep_bath' },
+            { text: 'Menginap (Rp 200)', cost: 200, effects: [{ stat: 'energy', valueSet: 70 }, { stat: 'hygiene', delta: -10 }], type: 'sleep' },
+            { text: 'Nginep + Mandi (Rp 200)', cost: 200, effects: [{ stat: 'energy', valueSet: 100 }, { stat: 'hygiene', valueSet: 40 }], type: 'sleep_bath' },
+            { text: 'Nginep + Mandi + Bonus Handuk 🤫 (Rp 200)', cost: 200, effects: [{ stat: 'energy', valueSet: 100 }, { stat: 'hygiene', valueSet: 40 }, { special: 'malingHanduk' }], type: 'sleep_bath' },
         ]
     },
     {
@@ -124,9 +124,17 @@ const GunungScreen = () => {
 
         setTimeout(() => {
             dispatch({ type: 'UPDATE_MONEY', amount: -cost });
-            if (timeAdvanceHours) {
-                dispatch({ type: 'ADVANCE_TIME', hours: timeAdvanceHours });
+            if (type === 'sleep' || type === 'sleep_bath') {
+                const currentHour = gameState.gameHour;
+
+                if (currentHour >= 18 || currentHour < 8) {
+                    dispatch({ type: 'ADVANCE_DAY' });
+                    dispatch({ type: 'SET_TIME', hour: 8, minute: 0 });
+                } else {
+                    dispatch({ type: 'SET_TIME', hour: 18, minute: 0 });
+                }
             }
+
             if (effects) {
                 effects.forEach(effect => {
                     if (effect.valueSet !== undefined) {

@@ -97,6 +97,17 @@ const RumahScreen = () => {
             }, 1000);
         }
 
+        if (type === 'sleep') {
+                const currentHour = gameState.gameHour;
+
+                if (currentHour >= 18 || currentHour < 8) {
+                    dispatch({ type: 'ADVANCE_DAY' });
+                    dispatch({ type: 'SET_TIME', hour: 8, minute: 0 });
+                } else {
+                    dispatch({ type: 'SET_TIME', hour: 18, minute: 0 });
+                }
+        }
+
         effects.forEach(effect => {
             if (effect.hasOwnProperty('valueSet')) {
                 dispatch({

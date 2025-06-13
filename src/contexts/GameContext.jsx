@@ -64,6 +64,18 @@ function gameReducer(state, action) {
             }
             return { ...state, gameMinute, gameHour, gameDay };
         }
+        case 'SET_TIME':
+            return {
+                ...state,
+                gameHour: action.hour,
+                gameMinute: action.minute
+            };
+        case 'ADVANCE_DAY':
+            return {
+                ...state,
+                gameDay: state.gameDay + 1
+            };
+
         case 'SET_LOCATION':
             return { ...state, currentLocation: action.payload };
         // Add more actions for specific game logic (sleep, eat, travel costs etc.)
