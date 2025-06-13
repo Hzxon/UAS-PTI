@@ -253,7 +253,7 @@ const GunungScreen = () => {
                         else if (photoViewCount >= 2) hapDelta = -50;
                         dispatch({ type: 'UPDATE_STATUS_DELTA', stat: 'happiness', delta: hapDelta });
                         setPhotoViewCount(prev => prev + 1);
-                        if (photoViewCount < 1){
+                        // if (photoViewCount < 1){
                             dispatch({
                                 type: 'ADD_ITEM',
                                 payload: {
@@ -268,7 +268,7 @@ const GunungScreen = () => {
                                     },
                                 },
                             });
-                        }
+                        // }
                     }
                 });
             }
