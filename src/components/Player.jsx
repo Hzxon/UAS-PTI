@@ -15,7 +15,7 @@ const Player = ({
     const [position, setPosition] = useState({ x: initialX, y: initialY });
     const [isFacingLeft, setIsFacingLeft] = useState(flipped);
     const keysPressed = useRef({});
-
+    const animationFrameId = useRef(null);
     const [hasMoved, setHasMoved] = useState(false);
 
     useEffect(() => {
@@ -25,7 +25,11 @@ const Player = ({
     useEffect(() => {
         const handleKeyDown = (e) => {
             keysPressed.current[e.key.toLowerCase()] = true;
+            if (['arrowup', 'arrowdown', 'arrowleft', 'arrowright', 'w', 'a', 's', 'd'].includes(e.key.toLowerCase())) {
+                e.preventDefault();
+            }
         };
+
         const handleKeyUp = (e) => {
             keysPressed.current[e.key.toLowerCase()] = false;
         };
@@ -38,27 +42,26 @@ const Player = ({
             let newY = position.y;
             let moved = false;
 
-            if (keysPressed.current['w'] || keysPressed.current['arrowup']) {
+            if (keysPressed.current['w'] || keysPressed.current['arrowup'] || gameState.arrowKeys.up) {
                 newY -= speed;
                 moved = true;
             }
-            if (keysPressed.current['s'] || keysPressed.current['arrowdown']) {
+            if (keysPressed.current['s'] || keysPressed.current['arrowdown'] || gameState.arrowKeys.down) {
                 newY += speed;
                 moved = true;
             }
-            if (keysPressed.current['a'] || keysPressed.current['arrowleft']) {
+            if (keysPressed.current['a'] || keysPressed.current['arrowleft'] || gameState.arrowKeys.left) {
                 newX -= speed;
                 setIsFacingLeft(true);
                 moved = true;
             }
-            if (keysPressed.current['d'] || keysPressed.current['arrowright']) {
+            if (keysPressed.current['d'] || keysPressed.current['arrowright'] || gameState.arrowKeys.right) {
                 newX += speed;
                 setIsFacingLeft(false);
                 moved = true;
             }
 
             if (moved) {
-                // Apply bounds
                 if (bounds) {
                     newX = Math.max(bounds.minX, Math.min(bounds.maxX - spriteWidth, newX));
                     newY = Math.max(bounds.minY, Math.min(bounds.maxY - spriteHeight, newY));
@@ -71,20 +74,19 @@ const Player = ({
             }
             if (!hasMoved) setHasMoved(true);
 
-            requestAnimationFrame(gameLoop);
+            animationFrameId.current = requestAnimationFrame(gameLoop);
         };
 
-        const animationFrameId = requestAnimationFrame(gameLoop);
+        animationFrameId.current = requestAnimationFrame(gameLoop);
 
         return () => {
             window.removeEventListener('keydown', handleKeyDown);
             window.removeEventListener('keyup', handleKeyUp);
-            cancelAnimationFrame(animationFrameId);
+            if (animationFrameId.current) {
+                cancelAnimationFrame(animationFrameId.current);
+            }
         };
-    }, [position, speed, bounds, onPositionChange, spriteWidth, spriteHeight]);
-
-
-    // Add touch controls from ArrowControls.js if needed, which would also update keysPressed.current
+    }, [speed, bounds, spriteWidth, spriteHeight]);
 
     if (!gameState.characterSprite) return null;
 
@@ -97,19 +99,15 @@ const Player = ({
                 width: `${spriteWidth}px`,
                 height: `${spriteHeight}px`,
                 transform: isFacingLeft ? 'scaleX(-1)' : 'scaleX(1)',
-                transition: 'transform 0.1s ease', // For smoother flipping
+                transition: 'transform 0.1s ease',
             }}
-            className="z-50" // Ensure player is above background but below some UI elements
+            className="z-50"
         >
             <img
                 src={gameState.characterSprite}
                 alt="Player Character"
                 className="w-full h-full object-contain"
             />
-            {/* Optional: Display player name above character */}
-            {/* <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-black bg-opacity-50 text-white text-xs px-1 rounded">
-                {gameState.playerName}
-            </div> */}
         </div>
     );
 };
