@@ -6,92 +6,158 @@ import Player from '../components/Player.jsx';
 import Map from '../components/Map.jsx';
 import ArrowControls from '../components/ArrowControls.jsx';
 import ScreenTransition from '../components/ScreenTransition.jsx';
+import ActionButton from '../components/ActionButton.jsx';
+import InventoryBag from '../components/InventoryBag.jsx';
 
-// Define interaction areas for Billiard
-// These are CSS percentages from style.css, converted for conceptual use.
-// You'll need to define these as pixel rects (x, y, width, height) based on your background and player.
-// The original CSS uses transform: translate for positioning, so the x,y below are illustrative.
 const INTERACTION_AREAS_BILLIARD = [
-    // For simplicity, providing conceptual pixel rects. Adjust these precisely.
-    // Original CSS: #bar width: 30%; height: 10%; left: 90%; top: 33%; transform: translate(-250%, -180%);
-    { id: 'bar', name: 'Bar', rect: { x: 300, y: 150, width: 200, height: 80 }, text: 'Beli Minuman di Bar', effects: [{ stat: 'hunger', delta: 1, interval: true }, {stat: 'happiness', delta: 1, interval: true}] }, //
-    // Original CSS: #bltable width: 40%; height: 40%; left: 90%; top: 33%; transform: translate(-150%, 50%);
-    { id: 'bltable', name: 'Billiard Table', rect: { x: 500, y: 400, width: 300, height: 250 }, text: 'Main Billiard', effects: [{ stat: 'happiness', delta: 2, interval: true }, { stat: 'energy', delta: -1, interval: true }] }, //
-    // Original CSS: #bltoilet width: 15%; height: 30%; left: 90%; top: 33%; transform: translate(-155%, -90%);
-    { id: 'bltoilet', name: 'Toilet', rect: { x: 700, y: 100, width: 100, height: 150 }, text: 'Gunakan Toilet', effects: [{ stat: 'hygiene', delta: 2, interval: true }] }, //
+    {
+        id: 'bar',
+        name: 'Bar',
+        rect: { x: 10, y: 105, width: 735, height: 75 },
+        locationText: 'di Bar Billiard',
+        actions: [
+            {
+                text: 'Amer (Rp 55)',
+                cost: 15,
+                effects:[{ special: 'amerBotol' }]
+            },
+            {
+                text: 'Aqua (Rp 15)',
+                cost: 15,
+                effects:[{ special: 'aquaBotol' }]
+            }
+        ]
+    },
+    {
+        id: 'bltable',
+        name: 'Billiard Table',
+        rect: { x: 470, y: 400, width: 600, height: 250 },
+        locationText: 'Main Billiard',
+        actions: [
+            {
+                text: 'Main Billiard',
+                cost: 0,
+                effects: [
+                    { stat: 'happiness', delta: 2 },
+                    { stat: 'energy', delta: -1 }
+                ]
+            }
+        ]
+    },
+    {
+        id: 'bltoilet',
+        name: 'Toilet',
+        rect: { x: 1040, y: 45, width: 205, height: 200 },
+        locationText: 'Gunakan Toilet',
+        actions: [
+            {
+                text: 'Toilet',
+                cost: 0,
+                effects: [
+                    { stat: 'hygiene', delta: 2 }
+                ]
+            }
+        ]
+    }
 ];
 
 const BilliardScreen = () => {
     const { gameState, dispatch } = useContext(GameContext);
     const [playerPosition, setPlayerPosition] = useState(null);
-    const [collidingWith, setCollidingWith] = useState(null);
-    const interactionIntervalRef = useRef(null);
+    const [currentInteractableArea, setCurrentInteractableArea] = useState(null);
     const transitionGelapRef = useRef(null);
 
     useEffect(() => {
         dispatch({ type: 'SET_LOCATION', payload: 'Billiard' });
     }, [dispatch]);
 
-    const clearInteractionInterval = useCallback(() => {
-        if (interactionIntervalRef.current) {
-            clearInterval(interactionIntervalRef.current);
-            interactionIntervalRef.current = null;
-        }
-    }, []);
-
-    useEffect(() => {
-        if (!playerPosition) return;
-
-        let currentCollision = null;
-        for (const area of INTERACTION_AREAS_BILLIARD) {
-            const playerRect = {
-                left: playerPosition.x,
-                top: playerPosition.y,
-                right: playerPosition.x + playerPosition.width,
-                bottom: playerPosition.y + playerPosition.height,
-            };
-            // Area rects are already in pixels
-            if (
-                playerRect.left < area.rect.right &&
-                playerRect.right > area.rect.left &&
-                playerRect.top < area.rect.bottom &&
-                playerRect.bottom > area.rect.top
-            ) {
-                currentCollision = area;
-                break;
-            }
-        }
-
-        if (currentCollision) {
-            if (collidingWith?.id !== currentCollision.id) {
-                setCollidingWith(currentCollision);
-                dispatch({ type: 'UPDATE_INFO_BAR_LOCATION', payload: `Lokasi: ${currentCollision.name}` });
-                clearInteractionInterval();
-
-                const intervalEffects = currentCollision.effects?.filter(e => e.interval);
-                if (intervalEffects && intervalEffects.length > 0) {
-                    interactionIntervalRef.current = setInterval(() => {
-                        intervalEffects.forEach(effect => {
-                            dispatch({ type: 'UPDATE_STATUS_DELTA', stat: effect.stat, delta: effect.delta });
-                        });
-                    }, 1000); //
-                }
-            }
-        } else {
-            if (collidingWith) {
-                setCollidingWith(null);
-                dispatch({ type: 'UPDATE_INFO_BAR_LOCATION', payload: `Lokasi: Billiard` });
-                clearInteractionInterval();
-            }
-        }
-        return () => clearInteractionInterval();
-    }, [playerPosition, collidingWith, dispatch, clearInteractionInterval]);
-
     const handlePlayerPositionChange = useCallback((newPosition) => {
         setPlayerPosition(newPosition);
-    }, []);
 
-    const billiardBounds = { minX: 50, maxX: window.innerWidth - 50, minY: 100, maxY: window.innerHeight - 50 };
+        const intersectedArea = INTERACTION_AREAS_BILLIARD.find(area => {
+            return (
+                newPosition.x + newPosition.width > area.rect.x &&
+                newPosition.x < area.rect.x + area.rect.width &&
+                newPosition.y + newPosition.height > area.rect.y &&
+                newPosition.y < area.rect.y + area.rect.height
+            );
+        });
+
+        setCurrentInteractableArea(intersectedArea || null);
+
+        dispatch({
+            type: 'UPDATE_INFO_BAR_LOCATION',
+            payload: `Lokasi: ${intersectedArea?.locationText || 'Billiard'}`
+        });
+    }, [dispatch]);
+
+    const handleInteraction = (action) => {
+        if (!action) return;
+
+        const { cost, effects } = action;
+
+        if (cost > 0 && gameState.money < cost) {
+            alert(`Uang tidak cukup! Dibutuhkan Rp ${cost}, kamu memiliki Rp ${gameState.money}`);
+            return;
+        }
+
+        dispatch({ type: 'UPDATE_MONEY', amount: -cost });
+         if (effects) {
+                effects.forEach(effect => {
+                    if (effect.valueSet !== undefined) {
+                        dispatch({ type: 'UPDATE_STAT', stat: effect.stat, value: effect.valueSet });
+                    } else if (effect.delta !== undefined) {
+                        dispatch({ type: 'UPDATE_STATUS_DELTA', stat: effect.stat, delta: effect.delta });
+                    }else if(effect.special === 'aquaBotol'){
+                        dispatch({
+                                type: 'ADD_ITEM',
+                                payload: {
+                                    name: 'AQUA',
+                                    desc: 'Seger',
+                                    kelangkaan: 'Umum',
+                                    image: '/images/objek/aquaBotol.png',
+                                    usable: true,
+                                    useAction: {
+                                        label: "Minum",
+                                        effects: [{ stat: 'hunger', delta: 5 }, { stat: 'happiness', delta: 5 }, { stat: 'energy', delta: 3 }]
+                                    },
+                                },
+                        });
+                    }else if(effect.special === 'amerBotol'){
+                        dispatch({
+                                type: 'ADD_ITEM',
+                                payload: {
+                                    name: 'AMER',
+                                    desc: 'Hareudang Euyy',
+                                    kelangkaan: 'Biasa',
+                                    image: '/images/objek/amerBotol.png',
+                                    usable: true,
+                                    useAction: {
+                                        label: "Minum",
+                                        effects: [{ stat: 'hunger', delta: 5 }, { stat: 'happiness', delta: 5 }, { stat: 'energy', delta: 3 }]
+                                    },
+                                },
+                        });
+                    }
+                });
+            }
+        effects.forEach(effect => {
+            dispatch({
+                type: 'UPDATE_STATUS_DELTA',
+                stat: effect.stat,
+                delta: effect.delta
+            });
+        });
+
+        setCurrentInteractableArea(null);
+    };
+
+    const billiardBounds = {
+        minX: 50,
+        maxX: window.innerWidth - 50,
+        minY: 100,
+        maxY: window.innerHeight - 50
+    };
 
     const showTransitionGelap = () => {
         if (transitionGelapRef.current) {
@@ -102,27 +168,69 @@ const BilliardScreen = () => {
 
     return (
         <ScreenTransition>
-            <div className="relative w-screen h-screen overflow-hidden bg-[url('/images/gambar/inside-billiard.png')] bg-cover bg-center font-utama"> {/* */}
-                <div ref={transitionGelapRef} className="fixed top-0 left-0 w-full h-full bg-black opacity-0 pointer-events-none transition-opacity duration-500 ease-in-out z-[1003]"></div>
-                <div id="arena-top" className="fixed top-0 left-0 w-full z-[100]">
+            <div className="relative w-screen h-screen overflow-hidden bg-[url('/images/gambar/inside-billiard.png')] bg-cover bg-center font-utama">
+                <div
+                    ref={transitionGelapRef}
+                    className="fixed top-0 left-0 w-full h-full bg-black opacity-0 pointer-events-none transition-opacity duration-500 ease-in-out z-[1003]"
+                ></div>
+
+                <div className="fixed top-0 left-0 w-full z-[100]">
                     <StatusBar />
                     <InfoBar />
                 </div>
+
                 <Player
-                    initialX={200} initialY={300} // Adjust spawn point
+                    initialX={200}
+                    initialY={300}
                     bounds={billiardBounds}
                     onPositionChange={handlePlayerPositionChange}
-                    spriteWidth={100} spriteHeight={150}
+                    spriteWidth={100}
+                    spriteHeight={150}
                 />
-                {/* Debugging visuals for collision areas */}
-                {/* {INTERACTION_AREAS_BILLIARD.map(area => (
-                    <div key={area.id} className={`absolute border-2 ${collidingWith?.id === area.id ? 'border-yellow-400 bg-yellow-400 bg-opacity-30' : 'border-red-500'}`}
-                        style={{ left: `${area.rect.x}px`, top: `${area.rect.y}px`, width: `${area.rect.width}px`, height: `${area.rect.height}px` }}>
-                        <span className="text-white bg-black p-1 text-xs">{area.name}</span>
+
+                {currentInteractableArea && currentInteractableArea.actions && playerPosition && (
+                    <div
+                        className="absolute z-[1000] pointer-events-auto"
+                        style={{
+                            left: `${currentInteractableArea.rect.x + currentInteractableArea.rect.width / 2}px`,
+                            top: `${currentInteractableArea.rect.y - -200 - currentInteractableArea.actions.length * 40}px`,
+                            transform: 'translateX(-50%)',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '8px',
+                            alignItems: 'center',
+                        }}
+                    >
+                        {currentInteractableArea.actions.map((action, index) => (
+                            <ActionButton
+                                key={index}
+                                text={action.text}
+                                onClick={() => handleInteraction(action)}
+                                className="w-max"
+                            />
+                        ))}
                     </div>
-                ))} */}
+                )}
+
+                {INTERACTION_AREAS_BILLIARD.map(area => (
+                    <div key={area.id}
+                        className={`absolute border-[2px] border-dashed flex justify-center items-center ${currentInteractableArea?.id === area.id ? 'border-yellow-400 bg-yellow-400 bg-opacity-30' : 'border-green-500 bg-green-500 bg-opacity-20'}`}
+                        style={{
+                            left: `${area.rect.x}px`,
+                            top: `${area.rect.y}px`,
+                            width: `${area.rect.width}px`,
+                            height: `${area.rect.height}px`
+                        }}
+                    >
+                        <span className="text-white text-[30px]">!{/*{area.name}*/}</span>
+                    </div>
+                ))}
+
+                
+
                 <Map onNavigateStart={showTransitionGelap} />
                 <ArrowControls />
+                <InventoryBag />
             </div>
         </ScreenTransition>
     );
