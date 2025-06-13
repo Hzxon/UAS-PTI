@@ -6,6 +6,7 @@ import Player from '../components/Player.jsx';
 import Map from '../components/Map.jsx';
 import ArrowControls from '../components/ArrowControls.jsx'; // Assuming ArrowControls calls a movePlayer function passed via props or context
 import ScreenTransition from '../components/ScreenTransition.jsx';
+import InventoryBag from '../components/InventoryBag.jsx';
 
 // Define interaction areas for Rumah
 // Dimensions are percentages of viewport width/height, adjust if your Player component uses fixed pixel sizes for areas.
@@ -22,6 +23,7 @@ const RumahScreen = () => {
     const { gameState, dispatch } = useContext(GameContext);
     const [playerPosition, setPlayerPosition] = useState(null); // { x, y, width, height }
     const [collidingWith, setCollidingWith] = useState(null); // ID of the area
+    const [newItem, setNewItem] = useState(null);
     const interactionIntervalRef = useRef(null);
     const transitionGelapRef = useRef(null);
 
@@ -139,6 +141,17 @@ const RumahScreen = () => {
         }
     };
 
+    useEffect(() => {
+            const handleUnload = () => {
+                localStorage.removeItem('inventoryItems');
+            };
+        
+            window.addEventListener('beforeunload', handleUnload);
+            return () => {
+                window.removeEventListener('beforeunload', handleUnload);
+            };
+        }, []);
+
     return (
         <ScreenTransition>
             <div className="relative w-screen h-screen overflow-hidden bg-[url('/images/gambar/inside-home.png')] bg-cover bg-center font-utama"> {/* Path relative to public folder */}
@@ -188,6 +201,7 @@ const RumahScreen = () => {
                 // Pass functions to Player component if ArrowControls directly manipulates player
                 // Or Player component listens to global key press state updated by ArrowControls
                 />
+                <InventoryBag />
             </div>
         </ScreenTransition>
     );

@@ -2,27 +2,28 @@ import React, { useState, useContext, useEffect } from "react";
 import { GameContext } from "../contexts/GameContext";
 
 const InventoryBag = ({ newItem }) => {
-    const { dispatch } = useContext(GameContext);
-    const [items, setItems] = useState([]);
+    const { gameState, dispatch } = useContext(GameContext);
+    const items = gameState.inventory;
     const [selectedItem, setSelectedItem] = useState(null);
     const [bagOpen, setBagOpen] = useState(false);
+
+    const [showImageModal, setShowImageModal] = useState(false);
+    const [modalImageSrc, setModalImageSrc] = useState(null);
 
     const MAX_ITEMS = 15;
     const [tasPenuh, setTasPenuh] = useState(false);
 
     useEffect(() => {
         if (newItem) {
-            setItems((prev) => {
-                if (prev.length < MAX_ITEMS) {
-                    return [...prev, newItem];
-                } else {
-                    setTasPenuh(true);
-                    setTimeout(() => setTasPenuh(false), 3000);
-                    return prev;
-                }
-            });
+            if (items.length < MAX_ITEMS) {
+                dispatch({ type: 'ADD_ITEM', payload: newItem });
+            } else {
+                setTasPenuh(true);
+                setTimeout(() => setTasPenuh(false), 3000);
+            }
         }
     }, [newItem]);
+
 
     useEffect(() => {
         const handleKeyDown = (e) => {
@@ -34,30 +35,41 @@ const InventoryBag = ({ newItem }) => {
         };
 
         window.addEventListener("keydown", handleKeyDown);
-        return () => window.removeEventListener("keydown", handleKeyDown);
-    }, []);
+            return () => window.removeEventListener("keydown", handleKeyDown);
+        }, []);
 
   // Gunakan item
     const handleUseItem = (item) => {
         if (!item.useAction) return;
 
+        if (item.useAction?.modalImage) {
+            setModalImageSrc(item.useAction.modalImage);
+            setShowImageModal(true);
+            return;
+        }
+
         item.useAction.effects.forEach((effect) => {
-            if (effect.delta !== undefined) {
-            dispatch({
-                type: "UPDATE_STATUS_DELTA",
-                stat: effect.stat,
-                delta: effect.delta,
-            });
+            if (effect.stat === 'money' && effect.delta !== undefined) {
+                dispatch({
+                    type: 'UPDATE_MONEY',
+                    amount: effect.delta,
+                });
+            } else if (effect.delta !== undefined) {
+                dispatch({
+                    type: "UPDATE_STATUS_DELTA",
+                    stat: effect.stat,
+                    delta: effect.delta,
+                });
             } else if (effect.valueSet !== undefined) {
-            dispatch({
-                type: "UPDATE_STAT",
-                stat: effect.stat,
-                value: effect.valueSet,
-            });
+                dispatch({
+                    type: "UPDATE_STAT",
+                    stat: effect.stat,
+                    value: effect.valueSet,
+                });
             }
         });
 
-        setItems((prev) => prev.filter((i) => i !== item));
+        dispatch({ type: "REMOVE_ITEM", payload: item });
         setSelectedItem(null);
         if (items.length === 1) {
             setBagOpen(false);
@@ -65,7 +77,7 @@ const InventoryBag = ({ newItem }) => {
     };
 
     const handleDiscardItem = (item) => {
-        setItems((prev) => prev.filter((i) => i !== item));
+        dispatch({ type: "REMOVE_ITEM", payload: item });
         setSelectedItem(null);
     };
 
@@ -127,8 +139,15 @@ const InventoryBag = ({ newItem }) => {
             {selectedItem && (
                 <div className="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center z-[1100]">
                     <div className="bg-[#a07435] rounded p-5 flex flex-col items-center shadow-lg w-[280px]">
-                        <img src={selectedItem.image} alt={selectedItem.name} className="w-24 h-24 mb-3" />
-                        <h1 className="text-white mb-3 font-bold text-center">{selectedItem.name}</h1>
+                        <img
+                            src={selectedItem.image}
+                            alt={selectedItem.name}
+                            className="w-full max-h-20 object-contain mb-3"
+                        />
+
+                        <h1 className="text-white mb-2 font-bold italic text-center">{selectedItem.name}</h1>
+                        <hr className="border-2 border-white w-full mb-2" />
+                        <h6 className="text-white mb-2 text-center">{selectedItem.kelangkaan}</h6>
                         <p className="text-white mb-3 text-xs text-center">{selectedItem.desc}</p>
                         <button
                             className="bg-yellow-400 hover:bg-yellow-500 text-white px-4 py-2 rounded mb-2 w-[80%]"
@@ -147,6 +166,24 @@ const InventoryBag = ({ newItem }) => {
                             onClick={() => setSelectedItem(null)}
                         >
                             Batal
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {showImageModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-80 flex justify-center items-center z-[2000]">
+                    <div className="relative">
+                        <img
+                            src={modalImageSrc}
+                            alt="Lihat Gambar"
+                            className="max-w-[90vw] max-h-[90vh] rounded shadow-lg"
+                        />
+                        <button
+                            className="absolute top-2 right-2 text-white px-3 py-1 rounded-full text-xl"
+                            onClick={() => setShowImageModal(false)}
+                        >
+                            ×
                         </button>
                     </div>
                 </div>

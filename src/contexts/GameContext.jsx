@@ -16,6 +16,7 @@ const initialGameState = {
     gameMinute: 0,
     currentLocation: 'Rumah', // Or derive from route
     arrowKeys: { up: false, down: false, left: false, right: false },
+    inventory: [],
     // Add other global states as needed
 };
 
@@ -63,12 +64,19 @@ function gameReducer(state, action) {
             return { ...state, gameMinute, gameHour, gameDay };
         }
         case 'SET_LOCATION':
-             return { ...state, currentLocation: action.payload };
+            return { ...state, currentLocation: action.payload };
         // Add more actions for specific game logic (sleep, eat, travel costs etc.)
         case 'ARROW_KEY_DOWN':
             return { ...state, arrowKeys: { ...state.arrowKeys, [action.payload]: true } };
         case 'ARROW_KEY_UP':
             return { ...state, arrowKeys: { ...state.arrowKeys, [action.payload]: false } };
+        case 'ADD_ITEM':
+    if (state.inventory.length >= 15) return state; // maksimal 15 item
+    return { ...state, inventory: [...state.inventory, action.payload] };
+
+case 'REMOVE_ITEM':
+    return { ...state, inventory: state.inventory.filter(item => item !== action.payload) };
+
         default:
             return state;
     }
@@ -87,7 +95,7 @@ export const GameProvider = ({ children }) => {
         const savedDay = parseInt(localStorage.getItem('gameDay'), 10);
         const savedHour = parseInt(localStorage.getItem('gameHour'), 10);
         const savedMinute = parseInt(localStorage.getItem('gameMinute'), 10);
-
+        const savedInventory = JSON.parse(localStorage.getItem('inventoryItems') || '[]');
 
         if (savedName && savedCharacter) {
             dispatch({
@@ -103,6 +111,7 @@ export const GameProvider = ({ children }) => {
                     gameDay: isNaN(savedDay) ? initialGameState.gameDay : savedDay,
                     gameHour: isNaN(savedHour) ? initialGameState.gameHour : savedHour,
                     gameMinute: isNaN(savedMinute) ? initialGameState.gameMinute : savedMinute,
+                    inventory: savedInventory,
                 },
             });
         }
@@ -120,6 +129,7 @@ export const GameProvider = ({ children }) => {
         localStorage.setItem('gameDay', gameState.gameDay.toString());
         localStorage.setItem('gameHour', gameState.gameHour.toString());
         localStorage.setItem('gameMinute', gameState.gameMinute.toString());
+        localStorage.setItem('inventoryItems', JSON.stringify(gameState.inventory));
     }, [gameState]);
 
     // Game loop for time progression and status decay

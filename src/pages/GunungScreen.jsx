@@ -17,6 +17,7 @@ const INTERACTION_AREAS_GUNUNG = [
         actions: [
             { text: 'Menginap (Rp 200)', cost: 200, effects: [{ stat: 'energy', valueSet: 70 }, { stat: 'hygiene', delta: -10 }], timeAdvanceHours: 8, type: 'sleep' },
             { text: 'Nginep + Mandi (Rp 200)', cost: 200, effects: [{ stat: 'energy', valueSet: 100 }, { stat: 'hygiene', valueSet: 40 }], timeAdvanceHours: 9, type: 'sleep_bath' },
+            { text: 'Nginep + Mandi + Bonus Handuk 🤫 (Rp 200)', cost: 200, effects: [{ stat: 'energy', valueSet: 100 }, { stat: 'hygiene', valueSet: 40 }, { special: 'malingHanduk' }], timeAdvanceHours: 9, type: 'sleep_bath' },
         ]
     },
     {
@@ -25,8 +26,11 @@ const INTERACTION_AREAS_GUNUNG = [
         locationText: "di Kafe Gunung",
         availableDaytimeOnly: true,
         actions: [
-            { text: 'Beli Makan (Rp 40)', cost: 40, effects: [{ stat: 'hunger', delta: 20 }, { stat: 'happiness', delta: 20 }, { stat: 'energy', delta: 5 }, { stat: 'hygiene', delta: -10 }], timeAdvanceHours: 1 },
-            { text: 'Beli Minum (Rp 10)', cost: 10, effects: [{ stat: 'hunger', delta: 5 }, { stat: 'happiness', delta: 10 }, { stat: 'energy', delta: 3 }, { stat: 'hygiene', delta: -10 }] },
+            { text: 'Beli Nasi Goreng (Rp 40)', cost: 40, effects: [{ stat: 'hunger', delta: 20 }, { stat: 'happiness', delta: 10 }, { stat: 'energy', delta: -5 }, { stat: 'hygiene', delta: -10 }], timeAdvanceHours: 1 },
+            { text: 'Beli Es Teh Manis (Rp 15)', cost: 15, effects: [{ stat: 'hunger', delta: 5 }, { stat: 'happiness', delta: 15 }, { stat: 'energy', delta: 3 }, { stat: 'hygiene', delta: -10 }] },
+            { text: 'Bungkus Nasi Goreng (Rp 40)', cost: 40, effects: [{ special: 'nasiGoreng' }] },
+            { text: 'Beli Aqua Botol (Rp 8)', cost: 8, effects: [{ special: 'aquaBotol' }] },
+            { text: 'Beli Kopi (Rp 20)', cost: 25, effects: [{ stat: 'hunger', delta: 5 }, { stat: 'happiness', delta: 30 }, { stat: 'energy', delta: 30 }, { stat: 'hygiene', delta: -10 }] },
         ]
     },
     {
@@ -122,28 +126,103 @@ const GunungScreen = () => {
                         dispatch({ type: 'UPDATE_STAT', stat: effect.stat, value: effect.valueSet });
                     } else if (effect.delta !== undefined) {
                         dispatch({ type: 'UPDATE_STATUS_DELTA', stat: effect.stat, delta: effect.delta });
-                    } else if (effect.special === 'sovenirHappiness') {
+                    }else if(effect.special === 'malingHanduk'){
+                        dispatch({
+                                type: 'ADD_ITEM',
+                                payload: {
+                                    name: 'HANDUK PENGINAPAN',
+                                    desc: 'Dijual bisa kali y 🤓 (+Rp 5)',
+                                    kelangkaan: 'Biasa',
+                                    image: '/images/objek/handuk.png',
+                                    usable: true,
+                                    useAction: {
+                                        label: "Jual",
+                                        effects: [{ stat: "money", delta: 5 }, { stat: "hygiene", delta: -50 }],
+                                    },
+                                },
+                        });
+                        setNewItem({ 
+                            name: 'HANDUK PENGINAPAN', 
+                            desc: 'Dijual bisa kali y 🤓',
+                            image: '/images/objek/handuk.png',
+                            usable: true,
+                            useAction: {
+                            label: "Jual",
+                            effects: [{ stat: "money", delta: 5 }],
+                            },
+                        });
+                    }else if(effect.special === 'nasiGoreng'){
+                        dispatch({
+                                type: 'ADD_ITEM',
+                                payload: {
+                                    name: 'NASI GORENG',
+                                    desc: 'Enak',
+                                    kelangkaan: 'Umum',
+                                    image: '/images/objek/nasiGoreng.png',
+                                    usable: true,
+                                    useAction: {
+                                        label: "Makan",
+                                        effects: [{ stat: 'hunger', delta: 20 }, { stat: 'happiness', delta: 5 }, { stat: 'energy', delta: 10 }, { hygiene: '-10'} ]
+                                    },
+                                },
+                        });
+                    }else if(effect.special === 'aquaBotol'){
+                        dispatch({
+                                type: 'ADD_ITEM',
+                                payload: {
+                                    name: 'AQUA',
+                                    desc: 'Seger',
+                                    kelangkaan: 'Umum',
+                                    image: '/images/objek/aquaBotol.png',
+                                    usable: true,
+                                    useAction: {
+                                        label: "Minum",
+                                        effects: [{ stat: 'hunger', delta: 5 }, { stat: 'happiness', delta: 5 }, { stat: 'energy', delta: 3 }]
+                                    },
+                                },
+                        });
+                    }else if (effect.special === 'sovenirHappiness') {
                         let hapDelta = 30;
                         if (sovenirPurchaseCount === 1) hapDelta = 10;
                         else if (sovenirPurchaseCount >= 2) hapDelta = -10;
                         dispatch({ type: 'UPDATE_STATUS_DELTA', stat: 'happiness', delta: hapDelta });
                         setSovenirPurchaseCount(prev => prev + 1);
+                        dispatch({
+                                type: 'ADD_ITEM',
+                                payload: {
+                                    name: 'KACAMATA',
+                                    desc: 'Kenangan dari gunung 😁 (+Rp 60)',
+                                    kelangkaan: 'Biasa',
+                                    image: '/images/objek/Kacamata.png',
+                                    usable: true,
+                                    useAction: {
+                                        label: "Jual",
+                                        effects: [{ stat: 'money', delta: 60 }]
+                                    },
+                                },
+                        });
                     } else if (effect.special === 'fotoHappiness') {
                         let hapDelta = 50;
                         if (photoViewCount === 1) hapDelta = 0;
                         else if (photoViewCount >= 2) hapDelta = -50;
                         dispatch({ type: 'UPDATE_STATUS_DELTA', stat: 'happiness', delta: hapDelta });
                         setPhotoViewCount(prev => prev + 1);
-                        setNewItem({ 
-                            name: 'Foto Indah Gunung', 
-                            desc: 'tes',
-                            image: '/images/objek/Tas.png',
-                            usable: true,
-                            useAction: {
-                            label: "Makan",
-                            effects: [{ stat: "hunger", delta: 20 }],
-                            },
-                        });
+                        if (photoViewCount < 1){
+                            dispatch({
+                                type: 'ADD_ITEM',
+                                payload: {
+                                    name: 'FOTO GUNUNG',
+                                    desc: 'Kenangan dari gunung (Hanya bisa didapatkan 1x dan tidak bisa didapatkan lagi)',
+                                    kelangkaan: 'Sangat Langka',
+                                    image: '/images/gambar/foto-gunung.png',
+                                    usable: true,
+                                    useAction: {
+                                        label: "Lihat",
+                                        modalImage: "/images/gambar/foto-gunung.png"
+                                    },
+                                },
+                            });
+                        }
                     }
                 });
             }
@@ -224,7 +303,7 @@ const GunungScreen = () => {
                         style={{ left: `${area.rect.x}px`, top: `${area.rect.y}px`, width: `${area.rect.width}px`, height: `${area.rect.height}px` }}>
                         <span className="text-white text-[30px]">!{/*{area.name} {area.availableDaytimeOnly && "(Siang)"}*/}</span>
                     </div>
-                 )})}
+                )})}
 
                 {showPhotoModal && (
                     <div id="lihat-foto" className="fixed top-0 left-0 w-full h-full flex justify-center items-center z-[1005] bg-black bg-opacity-70">
@@ -248,7 +327,7 @@ const GunungScreen = () => {
 
                 <Map onNavigateStart={showPageTransition} />
                 <ArrowControls />
-                <InventoryBag newItem={newItem} />
+                <InventoryBag />
             </div>
         </ScreenTransition>
     );
