@@ -179,8 +179,8 @@ const PantaiScreen = () => {
                     <div 
                         className="absolute z-[1000] pointer-events-auto"
                         style={{
-                            left: `${playerPosition.x + playerPosition.width / 2}px`,
-                            top: `${playerPosition.y - 90}px`,
+                            left: `${currentInteractableArea.rect.x + currentInteractableArea.rect.width / 2}px`,
+                            top: `${currentInteractableArea.rect.y + 30 - currentInteractableArea.actions.length * 40}px`,
                             transform: 'translateX(-50%)',
                             display: 'flex',
                             flexDirection: 'column',
