@@ -1,33 +1,29 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // pastikan kamu menggunakan react-router
 
-const ActivityLoadingScreen = ({ duration = 3000, message = 'Melakukan aktivitas...' }) => {
-    const navigate = useNavigate();
+const ActivityLoadingScreen = ({ duration = 3000, message = 'Melakukan aktivitas...', onFinish }) => {
     const [remainingTime, setRemainingTime] = useState(duration / 1000);
 
+    // Countdown setiap 1 detik
     useEffect(() => {
         const interval = setInterval(() => {
-            setRemainingTime(prev => {
-                if (prev <= 1) {
-                    clearInterval(interval);
-                    return 0;
-                }
-                return prev - 1;
-            });
+            setRemainingTime(prev => prev > 0 ? prev - 1 : 0);
         }, 1000);
 
-        const timeout = setTimeout(() => {
-            navigate('/'); // ubah ke halaman menu utama yang sesuai
-        }, duration);
+        return () => clearInterval(interval);
+    }, []);
 
-        return () => {
-            clearInterval(interval);
-            clearTimeout(timeout);
-        };
-    }, [duration, navigate]);
+    // Jalankan onFinish ketika waktu habis
+    useEffect(() => {
+        if (remainingTime === 0 && onFinish) {
+            onFinish();
+        }
+    }, [remainingTime, onFinish]);
 
+    // Fast forward manual
     const handleFastForward = () => {
-        navigate('/'); // ubah ke halaman menu utama yang sesuai
+        if (onFinish) {
+            onFinish();
+        }
     };
 
     return (
