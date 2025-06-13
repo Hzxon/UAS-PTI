@@ -247,6 +247,7 @@ const BilliardScreen = () => {
                     <ActivityLoadingScreen
                         duration={3000} 
                         message="Sedang bermain Billiard..."
+                        gifUrl="/public/images/gambar/animasiBiliard.gif"
                         onFinish={() => {
                             // Efek setelah loading selesai
                             dispatch({ type: 'UPDATE_STATUS_DELTA', stat: 'happiness', delta: 2 });
