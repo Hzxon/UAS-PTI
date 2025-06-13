@@ -141,16 +141,6 @@ const GunungScreen = () => {
                                     },
                                 },
                         });
-                        setNewItem({ 
-                            name: 'HANDUK PENGINAPAN', 
-                            desc: 'Dijual bisa kali y 🤓',
-                            image: '/images/objek/handuk.png',
-                            usable: true,
-                            useAction: {
-                            label: "Jual",
-                            effects: [{ stat: "money", delta: 5 }],
-                            },
-                        });
                     }else if(effect.special === 'nasiGoreng'){
                         dispatch({
                                 type: 'ADD_ITEM',

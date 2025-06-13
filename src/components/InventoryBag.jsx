@@ -14,16 +14,14 @@ const InventoryBag = ({ newItem }) => {
     const [tasPenuh, setTasPenuh] = useState(false);
 
     useEffect(() => {
-        if (newItem) {
-            if (items.length < MAX_ITEMS) {
-                dispatch({ type: 'ADD_ITEM', payload: newItem });
-            } else {
-                setTasPenuh(true);
-                setTimeout(() => setTasPenuh(false), 3000);
-            }
+        if (gameState.tasPenuhNotif) {
+            setTasPenuh(true);
+            setTimeout(() => {
+                setTasPenuh(false);
+                dispatch({ type: 'RESET_TAS_PENUH_NOTIF' });
+            }, 3000);
         }
-    }, [newItem]);
-
+    }, [gameState.tasPenuhNotif, dispatch]);
 
     useEffect(() => {
         const handleKeyDown = (e) => {
@@ -84,6 +82,12 @@ const InventoryBag = ({ newItem }) => {
     return (
         <div className="fixed top-[90px] right-5 z-[1000]">
         {/* Ikon tas */}
+            {tasPenuh && (
+                <div className="fixed top-18 left-1/2 transform -translate-x-1/2 bg-red-500 text-white px-4 py-2 rounded shadow-lg z-[2000]">
+                    Tas penuh! Gunakan atau buang item terlebih dahulu.
+                </div>
+            )}
+
             <div className="w-[50px] hover:w-[65px] transition-all duration-1000">
                 <img
                     src="/images/objek/Tas.png"
@@ -186,12 +190,6 @@ const InventoryBag = ({ newItem }) => {
                             ×
                         </button>
                     </div>
-                </div>
-            )}
-
-            {tasPenuh && (
-                <div className="fixed top-18 left-1/2 transform -translate-x-1/2 bg-red-500 text-white px-4 py-2 rounded shadow-lg z-[2000]">
-                    Tas penuh! Gunakan atau buang item terlebih dahulu.
                 </div>
             )}
         </div>

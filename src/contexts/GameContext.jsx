@@ -17,6 +17,7 @@ const initialGameState = {
     currentLocation: 'Rumah', // Or derive from route
     arrowKeys: { up: false, down: false, left: false, right: false },
     inventory: [],
+    tasPenuhNotif: false,
     // Add other global states as needed
 };
 
@@ -71,16 +72,26 @@ function gameReducer(state, action) {
         case 'ARROW_KEY_UP':
             return { ...state, arrowKeys: { ...state.arrowKeys, [action.payload]: false } };
         case 'ADD_ITEM':
-    if (state.inventory.length >= 15) return state; // maksimal 15 item
-    return { ...state, inventory: [...state.inventory, action.payload] };
+            if (state.inventory.length >= 15) {
+                return {
+                    ...state,
+                    tasPenuhNotif: true,
+                };
+            }
+            return {
+                ...state,
+                inventory: [...state.inventory, action.payload],
+                tasPenuhNotif: false,
+            };
+        case 'RESET_TAS_PENUH_NOTIF':
+            return { ...state, tasPenuhNotif: false };
+        case 'REMOVE_ITEM':
+            return { ...state, inventory: state.inventory.filter(item => item !== action.payload) };
 
-case 'REMOVE_ITEM':
-    return { ...state, inventory: state.inventory.filter(item => item !== action.payload) };
-
-        default:
-            return state;
-    }
-}
+                default:
+                    return state;
+            }
+        }
 
 export const GameProvider = ({ children }) => {
     const [gameState, dispatch] = useReducer(gameReducer, initialGameState);
