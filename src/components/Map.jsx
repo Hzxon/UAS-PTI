@@ -5,7 +5,7 @@ import { GameContext } from '../contexts/GameContext'; // Adjust path as needed
 // Define location data including costs and time changes
 // This could also come from a config file or GameContext if it's dynamic
 const LOCATIONS_DATA = {
-    rumah: { name: 'Rumah', path: '/rumah', cost: 0, timeHours: 0, timeDays: 0, tooltip: "Balik Ke Rumah" }, //
+    rumah: { name: 'Rumah', path: '/rumah', cost: 50, timeHours: 0, timeDays: 1, tooltip: "Balik Ke Rumah (Rp. 50)" }, //
     gunung: { name: 'Gunung', path: '/gunung', cost: 100, timeHours: 0, timeDays: 1, tooltip: "Pergi Ke Gunung (Rp. 100)" }, // Costs vary per originating page in original, this is a simplification. You might need to adjust costs dynamically.
     pantai: { name: 'Pantai', path: '/pantai', cost: 50, timeHours: 5, timeDays: 0, tooltip: "Pergi Ke Pantai (Rp. 50)" }, //
     danau: { name: 'Danau', path: '/danau', cost: 150, timeHours: 8, timeDays: 0, tooltip: "Pergi Ke Danau (Rp. 150)" }, //
