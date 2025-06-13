@@ -9,11 +9,14 @@ const Player = ({
     speed = 5, // Movement speed
     spriteWidth = 100, // Adjust as per your sprite
     spriteHeight = 100, // Adjust as per your sprite
+    flipped = false
 }) => {
     const { gameState } = useContext(GameContext);
     const [position, setPosition] = useState({ x: initialX, y: initialY });
-    const [isFacingLeft, setIsFacingLeft] = useState(false);
+    const [isFacingLeft, setIsFacingLeft] = useState(flipped);
     const keysPressed = useRef({});
+
+    const [hasMoved, setHasMoved] = useState(false);
 
     useEffect(() => {
         setPosition({ x: initialX, y: initialY });
@@ -66,6 +69,8 @@ const Player = ({
                     onPositionChange({ x: newX, y: newY, width: spriteWidth, height: spriteHeight });
                 }
             }
+            if (!hasMoved) setHasMoved(true);
+
             requestAnimationFrame(gameLoop);
         };
 

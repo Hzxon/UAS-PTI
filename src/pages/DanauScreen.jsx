@@ -7,12 +7,13 @@ import Map from '../components/Map.jsx';
 import ArrowControls from '../components/ArrowControls.jsx';
 import ScreenTransition from '../components/ScreenTransition.jsx';
 import ActionButton from '../components/ActionButton.jsx';
+import InventoryBag from '../components/InventoryBag.jsx';
 
 const INTERACTION_AREAS_DANAU = [
     {
         id: 'bar',
         name: 'Soda Bar',
-        rect: { x: 780, y: window.innerHeight - 300 - 100, width: 220, height: 100 },
+        rect: { x: 650, y: window.innerHeight - 440 - 100, width: 220, height: 150 },
         locationText: "di Soda Bar Danau",
         actions: [
             { 
@@ -36,7 +37,7 @@ const INTERACTION_AREAS_DANAU = [
     {
         id: 'jetski',
         name: 'Jetski Rental',
-        rect: { x: window.innerWidth - 250 - 250, y: 300, width: 250, height: 200 },
+        rect: { x: window.innerWidth - 250 - 250, y: 250, width: 250, height: 200 },
         locationText: "di Jetski Rental",
         actions: [
             { 
@@ -52,7 +53,7 @@ const INTERACTION_AREAS_DANAU = [
     {
         id: 'fishing',
         name: 'Fishing Spot',
-        rect: { x: 320, y: window.innerHeight - 100 - 130, width: 345, height: 130 },
+        rect: { x: 300, y: window.innerHeight - 100 - 130, width: 345, height: 130 },
         locationText: "di Spot Memancing",
         actions: [
             { 
@@ -68,7 +69,7 @@ const INTERACTION_AREAS_DANAU = [
     {
         id: 'swim',
         name: 'Swimming Area',
-        rect: { x: 500, y: 500, width: 400, height: 200 },
+        rect: { x: 650, y: 680, width: 200, height: 40 },
         locationText: "Berenang di Danau",
         actions: [
             { 
@@ -144,10 +145,10 @@ const DanauScreen = () => {
     };
 
     const danauBounds = { 
-        minX: 50, 
-        maxX: window.innerWidth - 250, 
-        minY: 360, 
-        maxY: window.innerHeight - 100 
+        minX: 580, 
+        maxX: window.innerWidth - 0, 
+        minY: 300, 
+        maxY: window.innerHeight - 20 
     };
 
     const showTransitionGelap = () => {
@@ -171,20 +172,21 @@ const DanauScreen = () => {
                 </div>
 
                 <Player
-                    initialX={700}
+                    initialX={1300}
                     initialY={400}
                     bounds={danauBounds}
                     onPositionChange={handlePlayerPositionChange}
-                    spriteWidth={100}
-                    spriteHeight={150}
+                    spriteWidth={250}
+                    spriteHeight={250}
+                    flipped={true}
                 />
 
                 {currentInteractableArea && currentInteractableArea.actions && playerPosition && (
                     <div 
                         className="absolute z-[1000] pointer-events-auto"
                         style={{
-                            left: `${playerPosition.x + playerPosition.width / 2}px`,
-                            top: `${playerPosition.y - 90}px`,
+                            left: `${currentInteractableArea.rect.x + currentInteractableArea.rect.width / 2}px`,
+                            top: `${currentInteractableArea.rect.y - 30 - currentInteractableArea.actions.length * 40}px`,
                             transform: 'translateX(-50%)',
                             display: 'flex',
                             flexDirection: 'column',
@@ -204,23 +206,16 @@ const DanauScreen = () => {
                 )}
 
                 {/* Debugging - show interaction areas */}
-                {/* {INTERACTION_AREAS_DANAU.map(area => (
-                    <div
-                        key={area.id}
-                        className={`absolute border-2 ${currentInteractableArea?.id === area.id ? 'border-yellow-400' : 'border-blue-400'}`}
-                        style={{
-                            left: `${area.rect.x}px`,
-                            top: `${area.rect.y}px`,
-                            width: `${area.rect.width}px`,
-                            height: `${area.rect.height}px`,
-                        }}
-                    >
-                        <span className="text-white bg-black p-1 text-xs">{area.name}</span>
+                {INTERACTION_AREAS_DANAU.map(area => (
+                    <div key={area.id} className={`absolute border-[2px] border-dashed flex justify-center items-center ${currentInteractableArea?.id === area.id ? 'border-yellow-400 bg-yellow-400 bg-opacity-30' : 'border-green-500 bg-green-500 bg-opacity-20'}`}
+                        style={{ left: `${area.rect.x}px`, top: `${area.rect.y}px`, width: `${area.rect.width}px`, height: `${area.rect.height}px` }}>
+                        <span className="text-white text-[30px]">!{/*{area.name}*/}</span>
                     </div>
-                ))} */}
+                ))}
 
                 <Map onNavigateStart={showTransitionGelap} />
                 <ArrowControls />
+                <InventoryBag />
             </div>
         </ScreenTransition>
     );

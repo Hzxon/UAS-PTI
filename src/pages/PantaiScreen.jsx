@@ -7,12 +7,13 @@ import Map from '../components/Map.jsx';
 import ArrowControls from '../components/ArrowControls.jsx';
 import ScreenTransition from '../components/ScreenTransition.jsx';
 import ActionButton from '../components/ActionButton.jsx';
+import InventoryBag from '../components/InventoryBag.jsx';
 
 const INTERACTION_AREAS_PANTAI = [
     {
         id: 'sea',
         name: 'Laut',
-        rect: { x: 900, y: 450, width: 410, height: 320 },
+        rect: { x: 1100, y: 400, width: 410, height: 320 },
         locationText: "Berenang di Laut",
         actions: [
             { 
@@ -29,7 +30,7 @@ const INTERACTION_AREAS_PANTAI = [
     {
         id: 'bar',
         name: 'Bar Pantai',
-        rect: { x: 70, y: 100, width: 350, height: 250 },
+        rect: { x: 130, y: 160, width: 285, height: 50 },
         locationText: "Makan di Bar Pantai",
         actions: [
             { 
@@ -45,7 +46,7 @@ const INTERACTION_AREAS_PANTAI = [
     {
         id: 'coconut',
         name: 'Pohon Kelapa',
-        rect: { x: 700, y: 100, width: 250, height: 350 },
+        rect: { x: 757, y: 240, width: 197, height: 90 },
         locationText: "Minum Kelapa",
         actions: [
             { 
@@ -61,11 +62,27 @@ const INTERACTION_AREAS_PANTAI = [
     {
         id: 'volleyball',
         name: 'Lapangan Voli',
-        rect: { x: 180, y: 500, width: 345, height: 150 },
+        rect: { x: 164, y: 430, width: 377, height: 104 },
         locationText: "Bermain Voli",
         actions: [
             { 
                 text: 'Main Voli', 
+                cost: 0, 
+                effects: [
+                    { stat: 'happiness', delta: 8 },
+                    { stat: 'energy', delta: -5 }
+                ] 
+            }
+        ]
+    },
+    {
+        id: 'mainPasir',
+        name: 'Main Pasir',
+        rect: { x: 1220, y: 130, width: 200, height: 150 },
+        locationText: "Main Pasir",
+        actions: [
+            { 
+                text: 'Main Pasir', 
                 cost: 0, 
                 effects: [
                     { stat: 'happiness', delta: 8 },
@@ -167,7 +184,7 @@ const PantaiScreen = () => {
                 </div>
 
                 <Player
-                    initialX={100}
+                    initialX={500}
                     initialY={200}
                     bounds={pantaiBounds}
                     onPositionChange={handlePlayerPositionChange}
@@ -200,23 +217,16 @@ const PantaiScreen = () => {
                 )}
 
                 {/* Debugging - show interaction areas */}
-                {/* {INTERACTION_AREAS_PANTAI.map(area => (
-                    <div
-                        key={area.id}
-                        className={`absolute border-2 ${currentInteractableArea?.id === area.id ? 'border-yellow-400' : 'border-red-400'}`}
-                        style={{
-                            left: `${area.rect.x}px`,
-                            top: `${area.rect.y}px`,
-                            width: `${area.rect.width}px`,
-                            height: `${area.rect.height}px`,
-                        }}
-                    >
-                        <span className="text-white bg-black p-1 text-xs">{area.name}</span>
+                {INTERACTION_AREAS_PANTAI.map(area => (
+                    <div key={area.id} className={`absolute border-[2px] border-dashed flex justify-center items-center ${currentInteractableArea?.id === area.id ? 'border-yellow-400 bg-yellow-400 bg-opacity-30' : 'border-green-500 bg-green-500 bg-opacity-20'}`}
+                        style={{ left: `${area.rect.x}px`, top: `${area.rect.y}px`, width: `${area.rect.width}px`, height: `${area.rect.height}px` }}>
+                        <span className="text-white text-[30px]">!{/*{area.name}*/}</span>
                     </div>
-                ))} */}
+                ))}
 
                 <Map onNavigateStart={showTransitionGelap} />
                 <ArrowControls />
+                <InventoryBag />
             </div>
         </ScreenTransition>
     );
