@@ -156,6 +156,18 @@ const BilliardScreen = () => {
             setCurrentInteractableArea(null);
         };
 
+        useEffect(() => {
+            const handleUnload = () => {
+                localStorage.removeItem('inventoryItems');
+            };
+        
+            window.addEventListener('beforeunload', handleUnload);
+            return () => {
+                window.removeEventListener('beforeunload', handleUnload);
+            };
+        }, []);
+
+
 
     const billiardBounds = {
         minX: 50,
