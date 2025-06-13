@@ -10,6 +10,25 @@ import ActionButton from '../components/ActionButton.jsx';
 import InventoryBag from '../components/InventoryBag.jsx';
 import ActivityLoadingScreen from '../components/ActivityLoadingScreen.jsx';
 
+const ACTIVITY_CONFIG = {
+    billiard: {
+        duration: 10000,
+        message: 'Sedang bermain Billiard...',
+        gifUrl: '/images/gambar/animasiBiliard.gif',
+        effects: [
+            { stat: 'happiness', delta: 2 },
+            { stat: 'energy', delta: -1 },
+        ],
+    },
+    toilet: {
+        duration: 5000,
+        message: 'Sedang menggunakan Toilet...',
+        gifUrl: '/images/gambar/animasiToilet.gif',
+        effects: [
+            { stat: 'hygiene', delta: 2 },
+        ],
+    },
+};
 
 const INTERACTION_AREAS_BILLIARD = [
     {
@@ -21,12 +40,12 @@ const INTERACTION_AREAS_BILLIARD = [
             {
                 text: 'Amer (Rp 55)',
                 cost: 15,
-                effects:[{ special: 'amerBotol' }]
+                effects: [{ special: 'amerBotol' }]
             },
             {
                 text: 'Aqua (Rp 15)',
                 cost: 15,
-                effects:[{ special: 'aquaBotol' }]
+                effects: [{ special: 'aquaBotol' }]
             }
         ]
     },
@@ -39,10 +58,7 @@ const INTERACTION_AREAS_BILLIARD = [
             {
                 text: 'Main Billiard',
                 cost: 0,
-                effects: [
-                    { stat: 'happiness', delta: 2 },
-                    { stat: 'energy', delta: -1 }
-                ]
+                activityKey: 'billiard'
             }
         ]
     },
@@ -55,9 +71,7 @@ const INTERACTION_AREAS_BILLIARD = [
             {
                 text: 'Toilet',
                 cost: 0,
-                effects: [
-                    { stat: 'hygiene', delta: 2 }
-                ]
+                activityKey: 'toilet'
             }
         ]
     }
@@ -67,9 +81,9 @@ const BilliardScreen = () => {
     const { gameState, dispatch } = useContext(GameContext);
     const [playerPosition, setPlayerPosition] = useState(null);
     const [currentInteractableArea, setCurrentInteractableArea] = useState(null);
-    const transitionGelapRef = useRef(null);
     const [isLoadingActivity, setIsLoadingActivity] = useState(false);
-
+    const [currentActivity, setCurrentActivity] = useState(null);
+    const transitionGelapRef = useRef(null);
 
     useEffect(() => {
         dispatch({ type: 'SET_LOCATION', payload: 'Billiard' });
@@ -77,97 +91,96 @@ const BilliardScreen = () => {
 
     const handlePlayerPositionChange = useCallback((newPosition) => {
         setPlayerPosition(newPosition);
-
-        const intersectedArea = INTERACTION_AREAS_BILLIARD.find(area => {
-            return (
-                newPosition.x + newPosition.width > area.rect.x &&
-                newPosition.x < area.rect.x + area.rect.width &&
-                newPosition.y + newPosition.height > area.rect.y &&
-                newPosition.y < area.rect.y + area.rect.height
-            );
-        });
-
+        const intersectedArea = INTERACTION_AREAS_BILLIARD.find(area => (
+            newPosition.x + newPosition.width > area.rect.x &&
+            newPosition.x < area.rect.x + area.rect.width &&
+            newPosition.y + newPosition.height > area.rect.y &&
+            newPosition.y < area.rect.y + area.rect.height
+        ));
         setCurrentInteractableArea(intersectedArea || null);
-
         dispatch({
             type: 'UPDATE_INFO_BAR_LOCATION',
             payload: `Lokasi: ${intersectedArea?.locationText || 'Billiard'}`
         });
     }, [dispatch]);
 
-        const handleInteraction = (action) => {
-            if (!action) return;
+    const handleInteraction = (action) => {
+        if (!action) return;
+        const { text, cost, effects, activityKey } = action;
 
-            const { text, cost, effects } = action;
+        if (cost > 0 && gameState.money < cost) {
+            alert(`Uang tidak cukup! Dibutuhkan Rp ${cost}, kamu memiliki Rp ${gameState.money}`);
+            return;
+        }
 
-            if (cost > 0 && gameState.money < cost) {
-                alert(`Uang tidak cukup! Dibutuhkan Rp ${cost}, kamu memiliki Rp ${gameState.money}`);
-                return;
-            }
+        if (activityKey) {
+            setCurrentActivity(activityKey);
+            setIsLoadingActivity(true);
+            return;
+        }
 
-            // Khusus untuk "Main Billiard", tampilkan loading dan jalankan efek setelahnya
-            if (text === "Main Billiard") {
-                setIsLoadingActivity(true);
-                return; // jangan lanjut dulu
-            }
+        dispatch({ type: 'UPDATE_MONEY', amount: -cost });
 
-            dispatch({ type: 'UPDATE_MONEY', amount: -cost });
-
-            if (effects) {
-                effects.forEach(effect => {
-                    if (effect.valueSet !== undefined) {
-                        dispatch({ type: 'UPDATE_STAT', stat: effect.stat, value: effect.valueSet });
-                    } else if (effect.delta !== undefined) {
-                        dispatch({ type: 'UPDATE_STATUS_DELTA', stat: effect.stat, delta: effect.delta });
-                    } else if (effect.special === 'aquaBotol') {
-                        dispatch({
-                            type: 'ADD_ITEM',
-                            payload: {
-                                name: 'AQUA',
-                                desc: 'Seger',
-                                kelangkaan: 'Umum',
-                                image: '/images/objek/aquaBotol.png',
-                                usable: true,
-                                useAction: {
-                                    label: "Minum",
-                                    effects: [{ stat: 'hunger', delta: 5 }, { stat: 'happiness', delta: 5 }, { stat: 'energy', delta: 3 }]
-                                },
+        if (effects) {
+            effects.forEach(effect => {
+                if (effect.valueSet !== undefined) {
+                    dispatch({ type: 'UPDATE_STAT', stat: effect.stat, value: effect.valueSet });
+                } else if (effect.delta !== undefined) {
+                    dispatch({ type: 'UPDATE_STATUS_DELTA', stat: effect.stat, delta: effect.delta });
+                } else if (effect.special === 'aquaBotol') {
+                    dispatch({
+                        type: 'ADD_ITEM',
+                        payload: {
+                            name: 'AQUA',
+                            desc: 'Seger',
+                            kelangkaan: 'Umum',
+                            image: '/images/objek/aquaBotol.png',
+                            usable: true,
+                            useAction: {
+                                label: "Minum",
+                                effects: [
+                                    { stat: 'hunger', delta: 5 },
+                                    { stat: 'happiness', delta: 5 },
+                                    { stat: 'energy', delta: 3 }
+                                ]
                             },
-                        });
-                    } else if (effect.special === 'amerBotol') {
-                        dispatch({
-                            type: 'ADD_ITEM',
-                            payload: {
-                                name: 'AMER',
-                                desc: 'Hareudang Euyy',
-                                kelangkaan: 'Biasa',
-                                image: '/images/objek/amerBotol.png',
-                                usable: true,
-                                useAction: {
-                                    label: "Minum",
-                                    effects: [{ stat: 'hunger', delta: 5 }, { stat: 'happiness', delta: 5 }, { stat: 'energy', delta: 3 }]
-                                },
+                        },
+                    });
+                } else if (effect.special === 'amerBotol') {
+                    dispatch({
+                        type: 'ADD_ITEM',
+                        payload: {
+                            name: 'AMER',
+                            desc: 'Hareudang Euyy',
+                            kelangkaan: 'Biasa',
+                            image: '/images/objek/amerBotol.png',
+                            usable: true,
+                            useAction: {
+                                label: "Minum",
+                                effects: [
+                                    { stat: 'hunger', delta: 5 },
+                                    { stat: 'happiness', delta: 5 },
+                                    { stat: 'energy', delta: 3 }
+                                ]
                             },
-                        });
-                    }
-                });
-            }
+                        },
+                    });
+                }
+            });
+        }
 
-            setCurrentInteractableArea(null);
+        setCurrentInteractableArea(null);
+    };
+
+    useEffect(() => {
+        const handleUnload = () => {
+            localStorage.removeItem('inventoryItems');
         };
-
-        useEffect(() => {
-            const handleUnload = () => {
-                localStorage.removeItem('inventoryItems');
-            };
-        
-            window.addEventListener('beforeunload', handleUnload);
-            return () => {
-                window.removeEventListener('beforeunload', handleUnload);
-            };
-        }, []);
-
-
+        window.addEventListener('beforeunload', handleUnload);
+        return () => {
+            window.removeEventListener('beforeunload', handleUnload);
+        };
+    }, []);
 
     const billiardBounds = {
         minX: 50,
@@ -186,11 +199,7 @@ const BilliardScreen = () => {
     return (
         <ScreenTransition>
             <div className="relative w-screen h-screen overflow-hidden bg-[url('/images/gambar/inside-billiard.png')] bg-cover bg-center font-utama">
-                <div
-                    ref={transitionGelapRef}
-                    className="fixed top-0 left-0 w-full h-full bg-black opacity-0 pointer-events-none transition-opacity duration-500 ease-in-out z-[1003]"
-                ></div>
-
+                <div ref={transitionGelapRef} className="fixed top-0 left-0 w-full h-full bg-black opacity-0 pointer-events-none transition-opacity duration-500 ease-in-out z-[1003]"></div>
                 <div className="fixed top-0 left-0 w-full z-[100]">
                     <StatusBar />
                     <InfoBar />
@@ -210,7 +219,7 @@ const BilliardScreen = () => {
                         className="absolute z-[1000] pointer-events-auto"
                         style={{
                             left: `${currentInteractableArea.rect.x + currentInteractableArea.rect.width / 2}px`,
-                            top: `${currentInteractableArea.rect.y - -200 - currentInteractableArea.actions.length * 40}px`,
+                            top: `${currentInteractableArea.rect.y + 200 - currentInteractableArea.actions.length * 40}px`,
                             transform: 'translateX(-50%)',
                             display: 'flex',
                             flexDirection: 'column',
@@ -239,28 +248,25 @@ const BilliardScreen = () => {
                             height: `${area.rect.height}px`
                         }}
                     >
-                        <span className="text-white text-[30px]">!{/*{area.name}*/}</span>
+                        <span className="text-white text-[30px]">!</span>
                     </div>
                 ))}
 
-                {isLoadingActivity && (
+                {isLoadingActivity && currentActivity && (
                     <ActivityLoadingScreen
-                        duration={3000} 
-                        message="Sedang bermain Billiard..."
-                        gifUrl="/public/images/gambar/animasiBiliard.gif"
+                        duration={ACTIVITY_CONFIG[currentActivity].duration}
+                        message={ACTIVITY_CONFIG[currentActivity].message}
+                        gifUrl={ACTIVITY_CONFIG[currentActivity].gifUrl}
                         onFinish={() => {
-                            // Efek setelah loading selesai
-                            dispatch({ type: 'UPDATE_STATUS_DELTA', stat: 'happiness', delta: 2 });
-                            dispatch({ type: 'UPDATE_STATUS_DELTA', stat: 'energy', delta: -1 });
-
+                            ACTIVITY_CONFIG[currentActivity].effects.forEach(effect => {
+                                dispatch({ type: 'UPDATE_STATUS_DELTA', stat: effect.stat, delta: effect.delta });
+                            });
                             setIsLoadingActivity(false);
                             setCurrentInteractableArea(null);
+                            setCurrentActivity(null);
                         }}
                     />
                 )}
-
-
-                
 
                 <Map onNavigateStart={showTransitionGelap} />
                 <ArrowControls />
