@@ -8,6 +8,36 @@ import ArrowControls from '../components/ArrowControls.jsx';
 import ScreenTransition from '../components/ScreenTransition.jsx';
 import ActionButton from '../components/ActionButton.jsx';
 import InventoryBag from '../components/InventoryBag.jsx';
+import ActivityLoadingScreen from '../components/ActivityLoadingScreen.jsx';
+
+const ACTIVITY_CONFIG = {
+    voli: {
+        duration: 10000,
+        message: 'Sedang bermain Voli...',
+        gifUrl: '/images/gambar/animasiVoli.gif',
+        effects: [
+            { stat: 'happiness', delta: 2 },
+            { stat: 'energy', delta: -1 },
+        ],
+    },
+    berenang: {
+        duration: 12000,
+        message: 'Sedang berenang...',
+        gifUrl: '/images/gambar/animasiBerenang.gif',
+        effects: [
+            { stat: 'hygiene', delta: -1 },
+            { stat: 'happiness', delta: 2 },
+        ],
+    },
+    mainPasir: {
+        duration: 7000,
+        message: 'Sedang main pasir...',
+        gifUrl: '/images/gambar/animasiMainPasir.gif',
+        effects: [
+            { stat: 'hygiene', delta: -2 },
+        ],
+    },
+};
 
 const INTERACTION_AREAS_PANTAI = [
     {
@@ -16,14 +46,10 @@ const INTERACTION_AREAS_PANTAI = [
         rect: { x: 1100, y: 400, width: 410, height: 320 },
         locationText: "Berenang di Laut",
         actions: [
-            { 
-                text: 'Berenang', 
-                cost: 0, 
-                effects: [
-                    { stat: 'happiness', delta: 5 },
-                    { stat: 'energy', delta: -2 },
-                    { stat: 'hygiene', delta: 3 }
-                ] 
+            {
+                text: 'Berenang',
+                cost: 0,
+                activityKey: 'berenang'
             }
         ]
     },
@@ -33,13 +59,13 @@ const INTERACTION_AREAS_PANTAI = [
         rect: { x: 130, y: 160, width: 285, height: 50 },
         locationText: "Makan di Bar Pantai",
         actions: [
-            { 
-                text: 'Makan (Rp 100)', 
-                cost: 100, 
+            {
+                text: 'Makan (Rp 100)',
+                cost: 100,
                 effects: [
                     { stat: 'hunger', delta: 15 },
                     { stat: 'happiness', delta: 3 }
-                ] 
+                ]
             }
         ]
     },
@@ -49,13 +75,10 @@ const INTERACTION_AREAS_PANTAI = [
         rect: { x: 757, y: 240, width: 197, height: 90 },
         locationText: "Minum Kelapa",
         actions: [
-            { 
-                text: 'Minum Kelapa (Rp 30)', 
-                cost: 30, 
-                effects: [
-                    { stat: 'hunger', delta: 5 },
-                    { stat: 'happiness', delta: 2 }
-                ] 
+            {
+                text: 'Beli Kelapa (Rp 30)',
+                cost: 30,
+                effects: [{ special:'kelapa'}]
             }
         ]
     },
@@ -65,13 +88,10 @@ const INTERACTION_AREAS_PANTAI = [
         rect: { x: 164, y: 430, width: 377, height: 104 },
         locationText: "Bermain Voli",
         actions: [
-            { 
-                text: 'Main Voli', 
-                cost: 0, 
-                effects: [
-                    { stat: 'happiness', delta: 8 },
-                    { stat: 'energy', delta: -5 }
-                ] 
+            {
+                text: 'Main Voli',
+                cost: 0,
+                activityKey: 'voli'
             }
         ]
     },
@@ -81,13 +101,10 @@ const INTERACTION_AREAS_PANTAI = [
         rect: { x: 1220, y: 130, width: 200, height: 150 },
         locationText: "Main Pasir",
         actions: [
-            { 
-                text: 'Main Pasir', 
-                cost: 0, 
-                effects: [
-                    { stat: 'happiness', delta: 8 },
-                    { stat: 'energy', delta: -5 }
-                ] 
+            {
+                text: 'Main Pasir',
+                cost: 0,
+                activityKey: 'mainPasir'
             }
         ]
     }
@@ -97,70 +114,104 @@ const PantaiScreen = () => {
     const { gameState, dispatch } = useContext(GameContext);
     const [playerPosition, setPlayerPosition] = useState(null);
     const [currentInteractableArea, setCurrentInteractableArea] = useState(null);
+    const [isLoadingActivity, setIsLoadingActivity] = useState(false);
+    const [currentActivity, setCurrentActivity] = useState(null);
     const transitionGelapRef = useRef(null);
 
     useEffect(() => {
         dispatch({ type: 'SET_LOCATION', payload: 'Pantai' });
     }, [dispatch]);
 
+    const startActivity = (activityKey) => {
+        setCurrentActivity(activityKey);
+        setIsLoadingActivity(true);
+    };
+
     const handlePlayerPositionChange = useCallback((newPosition) => {
         setPlayerPosition(newPosition);
-        
-        // Check for intersection with interaction areas
-        const intersectedArea = INTERACTION_AREAS_PANTAI.find(area => {
-            return (
-                newPosition.x + newPosition.width > area.rect.x &&
-                newPosition.x < area.rect.x + area.rect.width &&
-                newPosition.y + newPosition.height > area.rect.y &&
-                newPosition.y < area.rect.y + area.rect.height
-            );
-        });
-        
+
+        const intersectedArea = INTERACTION_AREAS_PANTAI.find(area => (
+            newPosition.x + newPosition.width > area.rect.x &&
+            newPosition.x < area.rect.x + area.rect.width &&
+            newPosition.y + newPosition.height > area.rect.y &&
+            newPosition.y < area.rect.y + area.rect.height
+        ));
+
         setCurrentInteractableArea(intersectedArea || null);
     }, []);
 
     const handleInteraction = (action) => {
-        if (!action) return;
-        
-        const { cost, effects } = action;
-
-        // Check if player can afford
-        if (gameState.money < cost) {
-            alert(`Uang tidak cukup! Dibutuhkan Rp ${cost}, kamu memiliki Rp ${gameState.money}`);
-            return;
-        }
-
-        // Deduct money if there's a cost
-        if (cost > 0) {
+        if (action.activityKey) {
+            startActivity(action.activityKey);
+        } else {
+            const { cost, effects } = action;
+            if (cost > 0 && gameState.money < cost) {
+                alert(`Uang tidak cukup! Dibutuhkan Rp ${cost}, kamu memiliki Rp ${gameState.money}`);
+                return;
+            }
             dispatch({ type: 'UPDATE_MONEY', amount: -cost });
-        }
 
-        // Apply all effects
-        effects.forEach(effect => {
-            if (effect.delta !== undefined) {
-                dispatch({
-                    type: 'UPDATE_STATUS_DELTA',
-                    stat: effect.stat,
-                    delta: effect.delta
+            if (effects) {
+                effects.forEach(effect => {
+                    if (effect.valueSet !== undefined) {
+                        dispatch({ type: 'UPDATE_STAT', stat: effect.stat, value: effect.valueSet });
+                    } else if (effect.delta !== undefined) {
+                        dispatch({ type: 'UPDATE_STATUS_DELTA', stat: effect.stat, delta: effect.delta });
+                    } else if (effect.special === 'kelapa') {
+                        dispatch({
+                            type: 'ADD_ITEM',
+                            payload: {
+                                name: 'KELAPA',
+                                desc: 'Kelapa segarr langsung dari pohonnya',
+                                kelangkaan: 'Umum',
+                                image: '/images/objek/kelapa.png',
+                                usable: true,
+                                useAction: {
+                                    label: "Minum",
+                                    effects: [
+                                        { stat: 'hunger', delta: 5 },
+                                        { stat: 'happiness', delta: 5 },
+                                        { stat: 'energy', delta: 3 }
+                                    ]
+                                },
+                            },
+                        });
+                    }
                 });
             }
+
+            setCurrentInteractableArea(null);
+        }
+
+        dispatch({
+            type: 'UPDATE_INFO_BAR_LOCATION',
+            payload: `Lokasi: ${currentInteractableArea?.locationText || 'Pantai'}`
+        });
+    };
+
+    const finishActivity = () => {
+        const activityData = ACTIVITY_CONFIG[currentActivity];
+        if (!activityData) return;
+
+        activityData.effects.forEach(effect => {
+            dispatch({ type: 'UPDATE_STATUS_DELTA', stat: effect.stat, delta: effect.delta });
         });
 
-        // Update location text
         dispatch({
             type: 'UPDATE_INFO_BAR_LOCATION',
             payload: `Lokasi: ${currentInteractableArea?.locationText || 'Pantai'}`
         });
 
-        // Hide the interaction buttons
+        setIsLoadingActivity(false);
+        setCurrentActivity(null);
         setCurrentInteractableArea(null);
     };
 
-    const pantaiBounds = { 
-        minX: 0, 
-        maxX: window.innerWidth, 
-        minY: 80, 
-        maxY: window.innerHeight - 20 
+    const pantaiBounds = {
+        minX: 0,
+        maxX: window.innerWidth,
+        minY: 80,
+        maxY: window.innerHeight - 20
     };
 
     const showTransitionGelap = () => {
@@ -183,6 +234,16 @@ const PantaiScreen = () => {
                     <InfoBar />
                 </div>
 
+                {isLoadingActivity && currentActivity && (
+                    <ActivityLoadingScreen
+                        duration={ACTIVITY_CONFIG[currentActivity].duration}
+                        message={ACTIVITY_CONFIG[currentActivity].message}
+                        gifUrl={ACTIVITY_CONFIG[currentActivity].gifUrl}
+                        onFinish={finishActivity}
+                        showFastForward={true}
+                    />
+                )}
+
                 <Player
                     initialX={500}
                     initialY={200}
@@ -192,9 +253,9 @@ const PantaiScreen = () => {
                     spriteHeight={150}
                 />
 
-                {currentInteractableArea && currentInteractableArea.actions && playerPosition && (
-                    <div 
-                        className="absolute z-[1000] pointer-events-auto"
+                {currentInteractableArea && currentInteractableArea.actions && playerPosition && !isLoadingActivity && (
+                    <div
+                        className="absolute z-[1000]"
                         style={{
                             left: `${currentInteractableArea.rect.x + currentInteractableArea.rect.width / 2}px`,
                             top: `${currentInteractableArea.rect.y + 30 - currentInteractableArea.actions.length * 40}px`,
@@ -216,11 +277,19 @@ const PantaiScreen = () => {
                     </div>
                 )}
 
-                {/* Debugging - show interaction areas */}
+                {/* Debug interaction area borders */}
                 {INTERACTION_AREAS_PANTAI.map(area => (
-                    <div key={area.id} className={`absolute border-[2px] border-dashed flex justify-center items-center ${currentInteractableArea?.id === area.id ? 'border-yellow-400 bg-yellow-400 bg-opacity-30' : 'border-green-500 bg-green-500 bg-opacity-20'}`}
-                        style={{ left: `${area.rect.x}px`, top: `${area.rect.y}px`, width: `${area.rect.width}px`, height: `${area.rect.height}px` }}>
-                        <span className="text-white text-[30px]">!{/*{area.name}*/}</span>
+                    <div
+                        key={area.id}
+                        className={`absolute border-[2px] border-dashed flex justify-center items-center ${currentInteractableArea?.id === area.id ? 'border-yellow-400 bg-yellow-400 bg-opacity-30' : 'border-green-500 bg-green-500 bg-opacity-20'}`}
+                        style={{
+                            left: `${area.rect.x}px`,
+                            top: `${area.rect.y}px`,
+                            width: `${area.rect.width}px`,
+                            height: `${area.rect.height}px`
+                        }}
+                    >
+                        <span className="text-white text-[30px]">!</span>
                     </div>
                 ))}
 
